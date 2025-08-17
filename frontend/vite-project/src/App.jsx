@@ -8,9 +8,9 @@ function App() {
     <>
         <Header/>
         <Container/>
-        <div className="absolute bottom-0 w-full">
+        
         <Footer/>
-        </div> 
+        
     </>
   );
 }
