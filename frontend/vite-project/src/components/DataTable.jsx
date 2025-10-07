@@ -1,108 +1,130 @@
+// src/components/DataTable.jsx
+import React from "react";
 import { Link } from "react-router-dom";
-import { serverUrl } from "../helpers/Constant";
 import axios from "axios";
-function DataTable(props) {
-  const { data , refreshData,uploadReloadState} = props;
-  console.log(data);
+import { serverUrl } from "../helpers/Constant";
 
-  const copytoclipboard = async (url) => {
+function DataTable({ data = [], refreshData, uploadReloadState }) {
+  const copyToClipboard = async (short) => {
     try {
-      await navigator.clipboard.writeText(`${serverUrl}/shortUrl/${url}`);
-      alert(`${serverUrl}/shortUrl/${url}`);
-    } catch (error) {
-      console.log(error);
+      const full = `${serverUrl}/shortUrl/${short}`;
+      await navigator.clipboard.writeText(full);
+      alert(`Copied: ${full}`);
+    } catch (err) {
+      console.error("Copy failed:", err);
+      alert("Copy failed");
     }
   };
-  const deleteurl = async (id) => {
-    const response = await axios.delete(`${serverUrl}/shortUrl/${id}`);
-    console.log(response);
-    alert("URL deleted");
-    refreshData();
-    uploadReloadState();
+
+  const deleteUrl = async (id) => {
+    if (!confirm("Delete this short URL?")) return;
+    try {
+      await axios.delete(`${serverUrl}/shortUrl/${id}`);
+      alert("URL deleted");
+      if (refreshData) await refreshData();
+      if (uploadReloadState) uploadReloadState();
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Delete failed");
+    }
   };
-  const renderTabledata = () => {
-    return data.map((item) => {
-      return (
-        <tr
-          key={item._id}
-          className="border-b text-white bg-gray-500 hover:bg-white hover:text-gray-800"
-        >
-          <td className="px-6 py-3 break-words">
-            <Link to={item.fullUrl} target="_blank" rel="noreferer noopener">
-              {item.fullUrl}
-            </Link>
-          </td>
-          <td className="px-6 py-3 break-words">
-            <Link
-              to={`${serverUrl}/shortUrl/${item.shortUrl}`}
-              target="_blank"
-              rel="noreferer noopener"
-            >
-              {item.shortUrl}
-            </Link>
-          </td>
-          <td className="px-6 py-3 break-words">{item.clicks}</td>
-          <td className="px-6 py-3 break-words flex">
-            <div onClick={() => copytoclipboard(item.shortUrl)}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor "
-                class="size-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"
-                />
-              </svg>
-            </div>
-            <div onClick={() => deleteurl(item._id)}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="black"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="gray"
-                class="size-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                />
-              </svg>
-            </div>
-          </td>
-        </tr>
-      );
-    });
-  };
-  return (
-    <div className="container mx-auto pt-2 pb-10">
-      <div className="relative overflow-x-auto shadow-sm sm:rounded-lg">
-        <table className="w-full table-fixed text-sm text-left rtl:text-right text-gray-500">
-          <thead className="text-md uppercase text-gray-50 bg-slate-800">
-            <tr>
-              <th scope="col" className="px-6 py-3 w-6/12">
-                FullUrl
-              </th>
-              <th scope="col" className="px-6 py-3 w-3/12">
-                ShortUrl
-              </th>
-              <th scope="col" className="px-6 py-3 ">
-                Clicks
-              </th>
-              <th scope="col" className="px-6 py-3 ">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>{renderTabledata()}</tbody>
-        </table>
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full bg-purp-900/10 rounded-lg p-6 text-center text-purp-300">
+        No links yet — shorten one above.
       </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto rounded-2xl">
+      <table className="w-full table-fixed text-sm text-left text-gray-200">
+        <thead className="uppercase text-xs text-gray-100 bg-purp-700/20">
+          <tr>
+            <th className="px-4 py-3 w-6/12">Full URL</th>
+            <th className="px-4 py-3 w-3/12">Short URL</th>
+            <th className="px-4 py-3 text-center w-1/12">Clicks</th>
+            <th className="px-4 py-3 text-center w-2/12">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item) => (
+            <tr
+              key={item._id}
+              className="border-b border-purp-700/20 bg-purp-800/10 hover:bg-purp-800/25 transition"
+            >
+              <td className="px-4 py-3 break-words text-sm">
+                <Link
+                  to={item.fullUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="hover:underline hover:text-purp-200"
+                >
+                  {item.fullUrl}
+                </Link>
+              </td>
+
+              <td className="px-4 py-3 break-words text-sm">
+                <a
+                  href={`${serverUrl}/shortUrl/${item.shortUrl}`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="font-medium text-purp-300 hover:text-purp-200"
+                >
+                  {item.shortUrl}
+                </a>
+              </td>
+
+              <td className="px-4 py-3 text-center">{item.clicks ?? 0}</td>
+
+              <td className="px-4 py-3 text-center flex items-center justify-center gap-3">
+                <button
+                  onClick={() => copyToClipboard(item.shortUrl)}
+                  title="Copy short URL"
+                  className="p-2 rounded-lg bg-purp-700 hover:bg-purp-600 transition"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.6"
+                    stroke="white"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 12h7M9 16h7M9 8h7M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1z"
+                    />
+                  </svg>
+                </button>
+
+                <button
+                  onClick={() => deleteUrl(item._id)}
+                  title="Delete"
+                  className="p-2 rounded-lg bg-red-600 hover:bg-red-500 transition"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.6"
+                    stroke="white"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

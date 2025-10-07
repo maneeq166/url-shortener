@@ -1,47 +1,77 @@
-import { useState } from "react";
+// src/components/FormContainer.jsx
+import React, { useState } from "react";
 import axios from "axios";
 import { serverUrl } from "../helpers/Constant";
 
-function FormContainer(props) {
-    const {uploadReloadState} = props
-    const [fullUrl,setFullUrl] = useState("");
+function FormContainer({ uploadReloadState }) {
+  const [fullUrl, setFullUrl] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e) =>{
-        e.preventDefault();
-        try {
-            console.log(fullUrl);            
-            await axios.post(`${serverUrl}/shortUrl`,{
-                fullUrl:fullUrl
-            })
-            setFullUrl("")
-            uploadReloadState()
-        } catch (error) {
-            console.log(error);            
-        }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!fullUrl.trim()) return;
+    setLoading(true);
+    try {
+      const res = await axios.post(`${serverUrl}/shortUrl`, { fullUrl });
+      console.log("Shortened:", res.data);
+
+      // Clear input and notify parent to reload table
+      setFullUrl("");
+      uploadReloadState();
+    } catch (error) {
+      console.error("Error creating short URL:", error);
+      // optionally show a nicer UI notification
+      alert("Could not shorten the URL. Check console for details.");
+    } finally {
+      setLoading(false);
     }
+  };
 
   return (
-    <div className="container mx-auto p-2 ">
-      <div className="bg-slate-700 my-5 rounded-xl">
-        <div className="w-full h-full rounded-xl  p-20 backdrop-brightness-50">
-          <h2 className="text-5xl text-white relative -top-5  text-center">URL Shortner</h2>
-          <p className="text-white text-center pb-2 text-xl font-light">
-            paste your untidy link
-          </p>
-          <p className="text-white text-center pb-4 text-xl font-extralight ">
-            free tool to use for converting your untidy link to short link
-          </p>
-          <form action="" onSubmit={handleSubmit}>
-            <div className="flex">
-                <div className="relative w-full">
-                    <div className="absolute inset-y-0 start-0 flex items-center ps-2 pointer-events-none text-slate-800">urlshortner.link /</div>
-                    <input type="text" value={fullUrl} onChange={(e)=>setFullUrl(e.target.value)} placeholder="add your link" required className="block w-full ps-32 bg-white p-4 text-sm text-gray-900 border border-gray-300 focus:ring-blue-500 focus:border-blue-500" />
-                    <button className="absolute top-0 end-0 p-3.5 text-white text-sm font-mono h-full bg-slate-700 round-xl focus:ring-4 focus:outline-none focus:ring-slate-500 " type="submit">Shorten URL</button>
-                </div>
-            </div>
-          </form>
-        </div>
+    <div className="w-full bg-white/5 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 p-6 sm:p-8">
+      <div className="text-center mb-6">
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-purp-200 tracking-wide">
+          URL Shortener
+        </h2>
+        <p className="text-purp-300/90 mt-2 text-sm sm:text-base">
+          Paste your untidy link below and get a clean short one 
+        </p>
       </div>
+
+      <form onSubmit={handleSubmit} className="relative">
+        <div className="flex flex-col sm:flex-row gap-3 items-center">
+          <div className="relative w-full">
+            <div className="absolute left-3 inset-y-0 flex items-center text-purp-400 font-semibold select-none pointer-events-none">
+              urlshortner.link/
+            </div>
+
+            <input
+              type="text"
+              value={fullUrl}
+              onChange={(e) => setFullUrl(e.target.value)}
+              placeholder="Enter your long URL here..."
+              required
+              className="w-full bg-purp-950/40 text-white rounded-xl pl-36 pr-32 py-3
+                         border border-purp-700 focus:ring-2 focus:ring-purp-400
+                         focus:outline-none placeholder-purp-400/60 transition duration-150"
+            />
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-purp-500 hover:bg-purp-400
+                         text-white font-medium px-5 py-2 rounded-lg shadow-md
+                         focus:ring-2 focus:ring-purp-300 transition-all disabled:opacity-60"
+            >
+              {loading ? "Shortening..." : "Shorten"}
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <p className="text-center text-sm text-purp-300/70 mt-5">
+      No signup required — your links are saved on your device
+      </p>
     </div>
   );
 }

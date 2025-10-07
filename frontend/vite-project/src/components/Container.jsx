@@ -1,34 +1,56 @@
-import React, { useEffect, useState } from 'react'
-import FormContainer from './FormContainer'
-import { serverUrl } from '../helpers/Constant'
-import DataTable from './DataTable'
-import axios from 'axios'
+// src/components/Container.jsx
+import React, { useEffect, useState } from "react";
+import FormContainer from "./FormContainer";
+import DataTable from "./DataTable";
+import axios from "axios";
+import { serverUrl } from "../helpers/Constant";
 
 function Container() {
-  const [data,setData] = useState([])
-  const [reload,setReload] = useState(false)
+  const [data, setData] = useState([]);
+  const [reload, setReload] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const fetchTableData = async ()  =>{
-      const response =  await axios.get(`${serverUrl}/shortUrl`);
-      console.log("The response from server is:",response);
-      setData(response.data)
-      console.log(data);
-      setReload(false)
-      
-  }
-  const uploadReloadState = () =>{
-    setReload(true);
-  }
-  
-  useEffect(()=>{
+  const fetchTableData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${serverUrl}/shortUrl`);
+      setData(response.data || []);
+      setReload(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const uploadReloadState = () => setReload(true);
+
+  useEffect(() => {
     fetchTableData();
-  },[reload])
+    
+  }, [reload]); 
+
   return (
-    <div>
-        <FormContainer uploadReloadState={uploadReloadState}/>
-        <DataTable data={data} uploadReloadState={uploadReloadState}   refreshData={fetchTableData}/>
+    <div className="flex flex-col items-center justify-start w-full space-y-8">
+      <div className="w-full max-w-3xl">
+        <FormContainer uploadReloadState={uploadReloadState} />
+      </div>
+
+      <div className="w-full max-w-5xl">
+        {loading ? (
+          <div className="p-6 rounded-lg bg-purp-900/10 text-center text-purp-300">
+            Loading...
+          </div>
+        ) : (
+          <DataTable
+            data={data}
+            uploadReloadState={uploadReloadState}
+            refreshData={fetchTableData}
+          />
+        )}
+      </div>
     </div>
-  )
+  );
 }
 
-export default Container
+export default Container;
