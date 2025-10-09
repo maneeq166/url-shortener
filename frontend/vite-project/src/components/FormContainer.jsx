@@ -28,7 +28,15 @@ function FormContainer({ uploadReloadState }) {
   };
 
   return (
-    <div className="w-full bg-white/5 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 p-6 sm:p-8">
+    <div
+  className="w-full bg-purp-900/20 backdrop-blur-xl
+             rounded-2xl shadow-[0_0_25px_rgba(168,85,247,0.25)]
+             border border-purp-700/30 p-6 sm:p-8
+             transform transition-all duration-300 ease-out
+             hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(168,85,247,0.45)]
+             hover:border-purp-400/40 hover:bg-purp-800/30"
+>
+
       <div className="text-center mb-6">
         <h2 className="text-3xl sm:text-4xl font-extrabold text-purp-200 tracking-wide">
           URL Shortener
