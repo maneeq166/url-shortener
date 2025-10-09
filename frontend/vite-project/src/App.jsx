@@ -1,10 +1,13 @@
+import { Route, Routes } from "react-router";
 import Background from "./components/Background";
 
 
 function App() {
   return (
     <>
-      <Background/>
+    <Routes>
+      <Route path="/" element={<Background/>}/>
+    </Routes>
     </>
   );
 }
