@@ -39,7 +39,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-6 py-12 lg:px-8 bg-gradient-to-br from-[#1A0B2E] via-[#2D0A3D] to-[#1F0B2E]">
+    <div className="min-h-screen mt-2 flex flex-col justify-center px-6 py-12 lg:px-8 bg-gradient-to-br from-purp-700 via-purp-800 to-[#ad5ef2]">
       <motion.div
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
