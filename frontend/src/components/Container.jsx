@@ -27,18 +27,19 @@ function Container() {
 
   useEffect(() => {
     fetchTableData();
-    
-  }, [reload]); 
+  }, [reload]);
 
   return (
-    <div className="flex flex-col items-center justify-start w-full space-y-8">
-      <div className="w-full max-w-3xl">
+    <div className="flex flex-col items-center justify-start w-full space-y-8 px-2 sm:px-4 md:px-0">
+      {/* Form */}
+      <div className="w-full max-w-full sm:max-w-3xl">
         <FormContainer uploadReloadState={uploadReloadState} />
       </div>
 
-      <div className="w-full max-w-5xl">
+      {/* Table */}
+      <div className="w-full max-w-full sm:max-w-5xl overflow-x-auto">
         {loading ? (
-          <div className="p-6 rounded-lg bg-purp-900/10 text-center text-purp-300">
+          <div className="p-4 sm:p-6 rounded-lg bg-purp-900/10 text-center text-purp-300">
             Loading...
           </div>
         ) : (
