@@ -17,6 +17,7 @@ app.use(cors({
 }))
 
 app.use("/api",shortUrl);
+app.use("/auth",require("./routes/auth/index.js"));
 
 async function connect() {
     try {
