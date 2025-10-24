@@ -42,9 +42,21 @@ async function loginUser(req,res){
         return res.status(400).json({message:"Wrong password"})
     }
 
-    let token = await jwt.sign({id:user._id,email:user.email,username:user.username})
+    let token = jwt.sign({id:user._id,email:user.email,username:user.username})
      
-    return res.status(200).json({message:"Logged in!"})
+    return res.status(200).json({message:"Logged in!",token})
+}
+
+async function getUser(req,res) {
+    const id = req.userId;
+
+    const user = await User.findById(id);
+
+    if(!user){
+        return res.status(404).json({message:"User not found"})
+    }
+
+    return res.status(200).json({message:"Your details",user});
 }
 
 
