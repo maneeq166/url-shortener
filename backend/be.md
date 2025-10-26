@@ -1,4 +1,4 @@
-## 🌐 ROUTES STRUCTURE
+##  ROUTES STRUCTURE
 
 ### 🧭 1. `authRoutes.js`
 

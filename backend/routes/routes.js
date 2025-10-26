@@ -75,4 +75,22 @@ shortUrl.delete("/shortUrl/:id", async (req, res) => {
   }
 });
 
+shortUrl.put("/shortUrl",async(req,res)=>{
+  try {
+    const {updatedBody} = req.body;
+    const url = await urlSchema.findByIdAndUpdate(updatedBody.id,{$set:updatedBody},{new:true});
+    
+    if(!url){
+      res.status(404).json({ message: "Full Url not found" });
+    }
+
+    return res.status(200).json({message:"Url updated",url});
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({message:"Server Error"})
+    
+  }
+})
+
 export { shortUrl };
