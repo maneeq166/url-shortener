@@ -19,13 +19,16 @@ const linkSchema = mongoose.Schema({
     },
     clicks:{
         type:Number,
+        default:0,
         required:true
     },
     expiredDate:{
         type:Date,
+         default: () => new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day later
     },
     isExpired:{
         type:Boolean,
+        default:false,
         required:true
     }
 
