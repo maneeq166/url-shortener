@@ -45,3 +45,45 @@ exports.createShortLink = async (fullUrl,userUrl,userId,size,protocol,host) =>{
     }
 
 }
+
+
+exports.getShortLink = async (fullUrl,userUrl,shortUrl,userId) =>{
+    if(!userId){
+        return {
+            data:null,
+            statusCode:400,
+            message:"Required fields are missing"
+        }
+    }
+
+
+     let url;
+    if(fullUrl){
+        url = await Link.find({userId,fullUrl})
+
+        return {
+            data:url,
+            message:"Url found",
+            statusCode:200
+        }
+    }else if(shortUrl){
+        url = await Link.find({userId,shortUrl})
+        return {
+            data:url,
+            message:"Url found",
+            statusCode:200
+        }
+    }else if(userUrl){
+        url = await Link.find({userId,userUrl})
+        return {
+            data:url,
+            message:"Url found",
+            statusCode:200
+        }
+    }
+    return {
+        data:await Link.find({userId}),
+        message:"Url found",
+        statusCode:200
+    }
+}
