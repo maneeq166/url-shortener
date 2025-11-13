@@ -29,11 +29,44 @@ exports.validateLogin = [
 ];
 
 exports.validateCheckUser = [
-  
-]
+  body().custom((body) => {
+    if (Object.keys(body).length > 0) {
+      throw new Error("No fields are allowed");
+    }
+    return true;
+  }),
+];
+
+exports.validateDeletion = [
+  body().custom((body) => {
+    if (Object.keys(body).length > 0) {
+      throw new Error("No fields are allowed");
+    }
+    return true;
+  }),
+];
 
 exports.validateUpdation = [
-  body("data").isObject({strict:true}).notEmpty()
+  body("username")
+    .optional()
+    .isLength({ min: 3, max: 14 })
+    .withMessage("Username must be 3–14 characters"),
 
+  body("email").optional().isEmail().withMessage("Invalid email format"),
 
-]
+  body().custom((body) => {
+    const allowed = ["username", "email"];
+    const keys = Object.keys(body);
+
+    if (keys.length === 0) {
+      throw new Error("At least one field is required");
+    }
+
+    const invalid = keys.filter((key) => !allowed.includes(key));
+    if (invalid.length > 0) {
+      throw new Error(`Invalid fields: ${invalid.join(", ")}`);
+    }
+
+    return true;
+  }),
+];

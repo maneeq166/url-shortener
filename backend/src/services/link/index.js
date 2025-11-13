@@ -96,3 +96,44 @@ exports.getShortLink = async (fullUrl,userUrl,shortUrl,userId) =>{
         statusCode:200
     }
 }
+
+
+exports.getSlugRandom = async (shortUrl) =>{
+    if(!shortUrl){
+        return {
+            data:null,
+            statusCode:400,
+            message:"Required fields are missing"
+        }
+    }
+
+    let url = await Link.findOne({shortUrl});
+    
+    
+
+    if(!url){
+        return {
+            data:null,
+            statusCode:404,
+            message:"Url not found"
+        }
+    }
+
+    if(url.isExpired || url.expiredDate < new Date()){
+        return {
+            data:null,
+            statusCode:400,
+            message:"Url expired"
+        }
+    }
+
+    url.isClicks +=1;
+
+    await url.save();
+
+    return {
+        data:url,
+        statusCode:200,
+        message:"Redirecting"
+    }
+}
