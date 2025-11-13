@@ -9,8 +9,9 @@ exports.createShortLink = async (fullUrl,userUrl,userId,size,protocol,host) =>{
             message:"Required fields are missing"
         }
     }
+    let UsersUrl = `${protocol}://${host}/${userUrl}`
 
-    let urlOfUser = await Link.findOne({userUrl});
+    let urlOfUser = await Link.findOne({userUrl:UsersUrl});
 
     if(urlOfUser){
         return {
@@ -25,7 +26,6 @@ exports.createShortLink = async (fullUrl,userUrl,userId,size,protocol,host) =>{
 
     let shortUrl = `${protocol}://${host}/${shortCode}`
 
-    let UsersUrl = `${protocol}://${host}/${userUrl}`
 
 
     let url = await Link.create({fullUrl,shortUrl,userId,userUrl:UsersUrl});
@@ -81,8 +81,17 @@ exports.getShortLink = async (fullUrl,userUrl,shortUrl,userId) =>{
             statusCode:200
         }
     }
+
+    let docs = await Link.countDocuments({userId});
+
+    url = await Link.find({userId})
+
+
     return {
-        data:await Link.find({userId}),
+        data:{
+            "Total-Links":docs,
+            "urls":url
+        },
         message:"Url found",
         statusCode:200
     }

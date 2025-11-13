@@ -18,3 +18,22 @@ exports.validateRegistration = [
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters"),
 ];
+
+exports.validateLogin = [
+  body("email").notEmpty().withMessage("email is required").isEmail(),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+];
+
+exports.validateCheckUser = [
+  
+]
+
+exports.validateUpdation = [
+  body("data").isObject({strict:true}).notEmpty()
+
+
+]

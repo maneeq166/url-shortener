@@ -25,7 +25,7 @@ exports.handleLinkCreation = asyncHandler(async (req, res) => {
 });
 
 exports.handleLinkRead = asyncHandler(async (req, res) => {
-  const { fullUrl, userUrl, shortUrl } = req.body;
+  const { fullUrl, userUrl, shortUrl } = req.query;
   const id = req.id;
 
   const result = await getShortLink(fullUrl, userUrl, shortUrl, id);
