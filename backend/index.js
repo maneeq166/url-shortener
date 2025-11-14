@@ -12,7 +12,7 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./src/config/swagger/index");
 const ApiResponse = require("./src/utils/apiResponse");
 const { connectToDatabase } = require("./src/config/connection/index");
-const { handleSlugRandom } = require("./src/controllers/link");
+const { handleSlugRandom, handleSlugUserUrl } = require("./src/controllers/link");
 
 const { MONGODB_URI, NODE_ENV } = process.env;
 const PORT = process.env.PORT || 5000;
@@ -76,6 +76,7 @@ app.get("/", (req, res) => res.send("Welcome to the url-shortener API"));
 app.use("/api/auth",require("./src/routes/auth/index"));
 app.use("/api",require("./src/routes/link/index"));
 app.get("/:slugs",handleSlugRandom);
+app.get("/:slug",handleSlugUserUrl);
 
 
 //  404 Fallback

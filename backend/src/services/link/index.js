@@ -137,3 +137,41 @@ exports.getSlugRandom = async (shortUrl) =>{
         message:"Redirecting"
     }
 }
+
+exports.getUserSlug = async (userUrl) =>{
+    if(!userUrl){
+        return {
+            data:null,
+            statusCode:400,
+            message:"Required fields are missing"
+        }
+    }
+
+    let url = await Link.findOne({userUrl});
+
+    if(!url){
+        return {
+            data:null,
+            statusCode:400,
+            message:"Can't find this link"
+        }
+    }
+
+    if(url.isExpired || url.expiredDate < new Date()){
+        return {
+            data:null,
+            statusCode:400,
+            message:"Url expired"
+        }
+    }
+
+    url.isClicks +=1;
+
+    await url.save();
+
+    return {
+        data:url,
+        statusCode:200,
+        message:"Redirecting"
+    }
+}

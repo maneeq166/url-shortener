@@ -1,4 +1,4 @@
-const { createShortLink, getShortLink, getSlugRandom } = require("../../services/link");
+const { createShortLink, getShortLink, getSlugRandom, getUserSlug } = require("../../services/link");
 const { asyncHandler } = require("../../utils/asyncHandler");
 const ApiResponse = require("../../utils/apiResponse/index");
 exports.handleLinkCreation = asyncHandler(async (req, res) => {
@@ -54,5 +54,17 @@ exports.handleSlugRandom = asyncHandler(async(req,res)=>{
 });
 
 exports.handleSlugUserUrl = asyncHandler(async(req,res)=>{
-  
+  const protocol = req.protocol;
+  const host = req.get("host");
+  const {slug} = req.params
+
+  const userUrl = `${protocol}://${host}/${slug}`;
+
+  const {message,data,statusCode} = await getUserSlug(userUrl);
+
+  if(statusCode !== 200){
+    return res.status(statusCode).json({message:message})
+  }
+
+  return res.redirect(data.fullUrl);
 })
