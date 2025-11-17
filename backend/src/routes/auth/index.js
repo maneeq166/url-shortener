@@ -1,7 +1,13 @@
-const { handleRegistration, handleLogin, handleUserDetails, handleUserUpdation, handleUserDeletion } = require("../../controllers/auth");
+const {
+  handleRegistration,
+  handleLogin,
+  handleUserDetails,
+  handleUserUpdation,
+  handleUserDeletion,
+} = require("../../controllers/auth");
 const { validateRegistration, validateLogin } = require("../../validator/auth");
 const router = require("express").Router();
-const {validateRequest} = require("../../middleware/validateRequest/index");
+const { validateRequest } = require("../../middleware/validateRequest/index");
 const { isUserOrAdmin } = require("../../middleware/authMiddleware");
 /**
  * @swagger
@@ -69,11 +75,16 @@ const { isUserOrAdmin } = require("../../middleware/authMiddleware");
  *                   example: Email already exists
  */
 
-router.route("/register").post(validateRegistration,validateRequest,handleRegistration);
+router
+  .route("/register")
+  .post(validateRegistration, validateRequest, handleRegistration);
 
-router.route("/login").post(validateLogin,handleLogin);
+router.route("/login").post(validateLogin, handleLogin);
 
-
-router.route("/").get(isUserOrAdmin,handleUserDetails).put(handleUserUpdation).delete(handleUserDeletion)
+router
+  .route("/")
+  .get(isUserOrAdmin, handleUserDetails)
+  .put(handleUserUpdation)
+  .delete(handleUserDeletion);
 
 module.exports = router;

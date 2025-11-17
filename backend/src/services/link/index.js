@@ -175,3 +175,54 @@ exports.getUserSlug = async (userUrl) =>{
         message:"Redirecting"
     }
 }
+
+exports.updateUrl = async (searchNameorId,data) =>{
+    if(!searchNameorId){
+        return {
+            data:null,
+            statusCode:400,
+            message:"Required fields are missing"
+        }
+    }
+    
+    let url ;
+    if(!searchNameorId.fullUrl && !searchNameorId.userId && searchNameorId.id){
+        url = await Link.findByIdAndUpdate(searchNameorId.id,data,{new:true});
+    }else if(!searchNameorId.fullUrl && searchNameorId.userId && !searchNameorId.id){
+        url = await Link.findOneAndUpdate({userId:searchNameorId.userId},data,{new:true})
+    }else if(searchNameorId.fullUrl && !searchNameorId.userId && !searchNameorId.id){
+        url = await Link.findOneAndUpdate({fullUrl:searchNameorId.fullUrl},data,{new:true})
+    }
+
+    return {
+        data:url,
+        statusCode:200,
+        message:"Url updated"
+    }    
+}
+
+exports.deleteUrl = async (searchNameorId) =>{
+    if(!searchNameorId){
+        return {
+            data:null,
+            statusCode:400,
+            message:"Required fields are missing"
+        }
+    }
+    
+    let url ;
+    if(!searchNameorId.fullUrl && !searchNameorId.userId && searchNameorId.id){
+        url = await Link.findByIdAndDelete(searchNameorId.id);
+    }else if(!searchNameorId.fullUrl && searchNameorId.userId && !searchNameorId.id){
+        url = await Link.findOneAndDelete({userId:searchNameorId.userId})
+    }else if(searchNameorId.fullUrl && !searchNameorId.userId && !searchNameorId.id){
+        url = await Link.findOneAndDelete({fullUrl:searchNameorId.fullUrl})
+    }
+
+    return {
+        data:url,
+        statusCode:200,
+        message:"Url deleted"
+    }  
+}
+

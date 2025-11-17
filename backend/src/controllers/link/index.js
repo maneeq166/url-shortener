@@ -1,4 +1,4 @@
-const { createShortLink, getShortLink, getSlugRandom, getUserSlug } = require("../../services/link");
+const { createShortLink, getShortLink, getSlugRandom, getUserSlug, updateUrl, deleteUrl } = require("../../services/link");
 const { asyncHandler } = require("../../utils/asyncHandler");
 const ApiResponse = require("../../utils/apiResponse/index");
 exports.handleLinkCreation = asyncHandler(async (req, res) => {
@@ -67,4 +67,28 @@ exports.handleSlugUserUrl = asyncHandler(async(req,res)=>{
   }
 
   return res.redirect(data.fullUrl);
+})
+
+exports.handleUrlUpdation = asyncHandler(async(req,res)=>{
+  const {search,updatedData} = req.body;
+
+  const result = await updateUrl(search,updatedData);
+
+  const { message, data, statusCode } = result;
+
+  return res
+    .status(statusCode)
+    .json(new ApiResponse(statusCode, data, message));
+})
+
+
+exports.handleUrlDeletion = asyncHandler(async(req,res)=>{
+  const {search } = req.body;
+  const result = await deleteUrl(search);
+
+  const { message, data, statusCode } = result;
+
+  return res
+    .status(statusCode)
+    .json(new ApiResponse(statusCode, data, message));
 })

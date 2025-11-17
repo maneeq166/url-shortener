@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const clickSchema = mongoose.Schema({
   linkId: { type: mongoose.Schema.Types.ObjectId , ref:"link", required:true },
-
+  referrer:{type:String},
   timestamp:{type:Date,required:true},
   deviceType:{type:String,required:true},
   browser:{type:String,required:true},
