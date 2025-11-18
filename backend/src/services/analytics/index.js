@@ -8,4 +8,5 @@ exports.getAllTimeAnalytics = async (linkId)=>{
     }
 
     const timestamp = Date.now();
+    
 }
