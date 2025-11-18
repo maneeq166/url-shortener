@@ -1,6 +1,9 @@
 const { createShortLink, getShortLink, getSlugRandom, getUserSlug, updateUrl, deleteUrl } = require("../../services/link");
 const { asyncHandler } = require("../../utils/asyncHandler");
 const ApiResponse = require("../../utils/apiResponse/index");
+
+
+
 exports.handleLinkCreation = asyncHandler(async (req, res) => {
   const id = req.id;
   const { fullUrl, userUrl, size } = req.body;
@@ -24,9 +27,11 @@ exports.handleLinkCreation = asyncHandler(async (req, res) => {
     .json(new ApiResponse(statusCode, data, message));
 });
 
+
 exports.handleLinkRead = asyncHandler(async (req, res) => {
   const { fullUrl, userUrl, shortUrl } = req.query;
   const id = req.id;
+  
 
   const result = await getShortLink(fullUrl, userUrl, shortUrl, id);
   const { message, data, statusCode } = result;
@@ -43,8 +48,11 @@ exports.handleSlugRandom = asyncHandler(async(req,res)=>{
   const host = req.get("host");
 
   const shortUrl = `${protocol}://${host}/${slugs}`;
+  const userAgent = req.headers["user-agent"];
+  const referer = req.headers.referer || "direct";
+  const country = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
-  const { statusCode, data, message } = await getSlugRandom(shortUrl);
+  const { statusCode, data, message } = await getSlugRandom(shortUrl,userAgent,country,referer);
 
   if(statusCode !== 200){
     return res.status(statusCode).json({message:message})
@@ -57,10 +65,13 @@ exports.handleSlugUserUrl = asyncHandler(async(req,res)=>{
   const protocol = req.protocol;
   const host = req.get("host");
   const {slug} = req.params
+  const userAgent = req.headers["user-agent"];
+  const referer = req.headers.referer || "direct";
+  const country = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
   const userUrl = `${protocol}://${host}/${slug}`;
 
-  const {message,data,statusCode} = await getUserSlug(userUrl);
+  const {message,data,statusCode} = await getUserSlug(userUrl,userAgent,country,referer);
 
   if(statusCode !== 200){
     return res.status(statusCode).json({message:message})

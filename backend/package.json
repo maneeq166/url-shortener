@@ -5,6 +5,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-validator": "^7.3.0",
+    "geoip-lite": "^1.4.10",
     "jsonwebtoken": "^9.0.2",
     "logrotate-stream": "^0.2.9",
     "mongoose": "^8.18.0",
@@ -12,6 +13,7 @@
     "nanoid": "^5.1.6",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
+    "ua-parser-js": "^2.0.6",
     "zod": "^4.1.12"
   }
 }

@@ -7,6 +7,7 @@ const clickSchema = mongoose.Schema({
   deviceType:{type:String,required:true},
   browser:{type:String,required:true},
   country:{type:String,required:true},
+  os:{type:String,required:true},
   ipHash:{type:String,required:true}
 },{timestamps:true});
 

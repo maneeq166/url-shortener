@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+ const mongoose = require('mongoose');
 
 const linkSchema = mongoose.Schema({
     userId:{
@@ -34,5 +34,7 @@ const linkSchema = mongoose.Schema({
 
 },{timestamps:true})
 
-export const Link = mongoose.model("link",linkSchema);
+const Link = mongoose.model("link",linkSchema);
+
+module.exports= {Link}
 
