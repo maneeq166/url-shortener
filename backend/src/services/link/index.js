@@ -3,6 +3,7 @@ const { Link } = require("../../models/link/index");
 const { Click} = require("../../models/click/index");
 const { parseDevice, hashIp } = require("../../config/analytics");
 const geoIp = require("geoip-lite");
+const qrcode = require("qrcode")
 
 exports.createShortLink = async (
   fullUrl,
@@ -66,6 +67,45 @@ exports.createShortLink = async (
     statusCode: 201,
   };
 };
+
+exports.getOneUrl = async (linkId) =>{
+  if(!linkId){
+    return {
+      data:null,
+      statusCode:400,
+      message:"Required fields are missing"
+    }
+  }
+
+  let url = await Link.findById(linkId);
+
+  if(!url){
+    return{
+      data:null,
+      statusCode:400,
+      message:"Cant found Link"
+    }
+  }
+
+  let qrCode = qrcode.toDataURL(url.fullUrl);
+
+  let analytics = await Click.findOne({linkId:url._id});
+  if(!analytics){
+    return{
+      data:null,
+      statusCode:400,
+      message:"Cant found Link"
+    }
+  }
+
+  return{
+    data:{
+      qrCode,analytics
+    },
+    message:"Fetched link",
+    statusCode:200
+  }
+}
 
 exports.getShortLink = async (fullUrl, userUrl, shortUrl, userId) => {
   if (!userId) {
