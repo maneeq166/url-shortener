@@ -72,11 +72,10 @@ if (NODE_ENV === "development") {
 }
 
 // Routes
-app.get("/", (req, res) => res.send("Welcome to the url-shortener API"));
+app.get("/url", (req, res) => res.send("Welcome to the url-shortener API"));
 app.use("/api/auth",require("./src/routes/auth/index"));
-app.use("/api",require("./src/routes/link/index"));
-app.get("/:slugs",handleSlugRandom);
-app.get("/:slug",handleSlugUserUrl);
+app.use("/", require("./src/routes/link/index"));
+
 
 
 //  404 Fallback

@@ -21,7 +21,7 @@ exports.createShortLink = async (
     };
   }
 
-  let UsersUrl = `${protocol}://${host}/${userUrl}`;
+  let UsersUrl = `${protocol}://${host}/user/${userUrl}`;
 
   let urlOfUser = await Link.findOne({ userUrl: UsersUrl });
 
@@ -68,8 +68,8 @@ exports.createShortLink = async (
   };
 };
 
-exports.getOneUrl = async (linkId) =>{
-  if(!linkId){
+exports.getOneUrl = async (id,linkId) =>{
+  if(!linkId || !id){
     return {
       data:null,
       statusCode:400,
@@ -77,7 +77,11 @@ exports.getOneUrl = async (linkId) =>{
     }
   }
 
-  let url = await Link.findById(linkId);
+  console.log(linkId,id);
+  
+
+ let url = await Link.findOne({ _id: linkId, userId: id });
+
 
   if(!url){
     return{
@@ -87,9 +91,10 @@ exports.getOneUrl = async (linkId) =>{
     }
   }
 
-  let qrCode = qrcode.toDataURL(url.fullUrl);
+  let qrCode = await qrcode.toDataURL(url.fullUrl);
 
   let analytics = await Click.findOne({linkId:url._id});
+  
   if(!analytics){
     return{
       data:null,
@@ -167,6 +172,9 @@ exports.getSlugRandom = async (shortUrl,userAgent,
     };
   }
 
+  console.log(shortUrl,userAgent,country);
+  
+
   let url = await Link.findOne({ shortUrl });
 
   if (!url) {
@@ -191,12 +199,28 @@ exports.getSlugRandom = async (shortUrl,userAgent,
 
    const {deviceType,os,browser} = parseDevice(userAgent);
 
-  const ipHash = hashIp(country);
 
-  const geo = geoIp.lookup(country);
+  const ipHash = await hashIp(country);
+
+  const geoInfo = geoIp.lookup(country) || {};
 
 
-  let click = await Click.create({linkId:url._id,referer,timestamp:Date.now(),deviceType,os,browser,country:geo,ipHash})
+  const click = await Click.create({
+    linkId: url._id,
+    referrer: referer,
+    deviceType,
+    browser,
+    os,
+    ipHash,
+    // timestamp: new Date(),
+    geo: {
+      range: geoInfo.range || null,
+      country: geoInfo.country || null,
+      region: geoInfo.region || null,
+      ll: geoInfo.ll || null,
+    },
+  });
+  
 
   return {
     data: url,
@@ -214,13 +238,13 @@ exports.getUserSlug = async (userUrl,userAgent,country,referer) => {
     };
   }
 
-  let url = await Link.findOne({ userUrl });
+ let url = await Link.findOne({ userUrl });
 
   if (!url) {
     return {
       data: null,
-      statusCode: 400,
-      message: "Can't find this link",
+      statusCode: 404,
+      message: "Url not found",
     };
   }
 
@@ -235,16 +259,31 @@ exports.getUserSlug = async (userUrl,userAgent,country,referer) => {
   url.isClicks += 1;
 
   await url.save();
- 
-  
+
    const {deviceType,os,browser} = parseDevice(userAgent);
 
-  const ipHash = hashIp(country);
 
-  const geo = geoIp.lookup(country);
+  const ipHash = await hashIp(country);
+
+  const geoInfo = geoIp.lookup(country) || {};
 
 
-  let click = await Click.create({linkId:url._id,referer,timestamp:Date.now(),deviceType,os,browser,country:geo,ipHash})
+  const click = await Click.create({
+    linkId: url._id,
+    referrer: referer,
+    deviceType,
+    browser,
+    os,
+    ipHash,
+    // timestamp: new Date(),
+    geo: {
+      range: geoInfo.range || null,
+      country: geoInfo.country || null,
+      region: geoInfo.region || null,
+      ll: geoInfo.ll || null,
+    },
+  });
+
 
 
   return {

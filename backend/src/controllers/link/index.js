@@ -46,6 +46,8 @@ exports.handleSlugRandom = asyncHandler(async(req,res)=>{
   const {slugs} = req.params;
   const protocol = req.protocol;
   const host = req.get("host");
+  
+  
 
   const shortUrl = `${protocol}://${host}/${slugs}`;
   const userAgent = req.headers["user-agent"];
@@ -69,7 +71,7 @@ exports.handleSlugUserUrl = asyncHandler(async(req,res)=>{
   const referer = req.headers.referer || "direct";
   const country = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
-  const userUrl = `${protocol}://${host}/${slug}`;
+  const userUrl = `${protocol}://${host}/user/${slug}`;
 
   const {message,data,statusCode} = await getUserSlug(userUrl,userAgent,country,referer);
 
@@ -81,16 +83,20 @@ exports.handleSlugUserUrl = asyncHandler(async(req,res)=>{
 })
 
 
-exports.handleOneUrl = asyncHandler(async(req,res)=>{
+exports.handleOneUrlAnalyticsAndQrCode  = asyncHandler(async(req,res)=>{
+  const id = req.id
   const {linkId} = req.query;
+  
+  
 
-  const result = await getOneUrl(linkId);
+  const result = await getOneUrl(id,linkId);
   const { message, data, statusCode } = result;
 
   return res
     .status(statusCode)
     .json(new ApiResponse(statusCode, data, message));
 })
+
 
 exports.handleUrlUpdation = asyncHandler(async(req,res)=>{
   const {search,updatedData} = req.body;
