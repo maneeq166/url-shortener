@@ -1,40 +1,23 @@
- const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 const linkSchema = mongoose.Schema({
-    userId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"user",
-        required:true
-    },
-    fullUrl:{
-        type:String,
-        required:true
-    },
-    shortUrl:{
-        type:String,
-        required:true
-    },
-    userUrl:{
-        type:String
-    },
-    clicks:{
-        type:Number,
-        default:0,
-        required:true
-    },
-    expiredDate:{
-        type:Date,
-         default: () => new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day later
-    },
-    isExpired:{
-        type:Boolean,
-        default:false,
-        required:true
-    }
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: true
+  },
+  fullUrl: { type: String, required: true },
 
-},{timestamps:true})
+  slug: { type: String, required: true, unique: true },        // for /abc123
+  userSlug: { type: String, unique: true },                    // for /u/customslug
 
-const Link = mongoose.model("link",linkSchema);
+  clicks: { type: Number, default: 0 },
+  expiredDate: {
+    type: Date,
+    default: () => new Date(Date.now() + 24 * 60 * 60 * 1000)
+  },
+  isExpired: { type: Boolean, default: false }
+}, { timestamps: true });
 
-module.exports= {Link}
-
+const Link = mongoose.model("link", linkSchema);
+module.exports = { Link };

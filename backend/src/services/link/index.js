@@ -5,382 +5,316 @@ const { parseDevice, hashIp } = require("../../config/analytics");
 const geoIp = require("geoip-lite");
 const qrcode = require("qrcode");
 
-exports.createShortLink = async (
-  fullUrl,
-  userUrl,
-  userId,
-  size,
-  protocol,
-  host
-) => {
+
+// create
+exports.createShortLink = async (fullUrl, userSlug, userId, size) => {
   if (!fullUrl || !userId || !size) {
-    return {
-      data: null,
-      statusCode: 400,
-      message: "Required fields are missing",
-    };
+    return { statusCode: 400, data: null, message: "Required fields are missing" };
   }
 
-  let UsersUrl = `${protocol}://${host}/u/${userUrl}`;
+  // If user chooses a custom slug
+  if (userSlug) {
+    const exists = await Link.findOne({ userSlug });
 
-  let urlOfUser = await Link.findOne({ userUrl: UsersUrl });
-
-  if (urlOfUser) {
-    return {
-      data: null,
-      message: "Custom url already made",
-      statusCode: 400,
-    };
+    if (exists) {
+      return { statusCode: 400, data: null, message: "Custom slug already exists" };
+    }
   }
 
-  let shortCode = nanoid(size);
+  // Generate a random slug
+  const slug = nanoid(size);
 
-  let shortUrl = `${protocol}://${host}/${shortCode}`;
-
-  urlOfUser = await Link.findOne({ shortUrl });
-
-  if (urlOfUser) {
-    return {
-      data: null,
-      message: "Try one more time,custom slug already exists",
-      statusCode: 400,
-    };
+  // Check collision
+  const slugExists = await Link.findOne({ slug });
+  if (slugExists) {
+    return { statusCode: 400, data: null, message: "Slug collision. Try again." };
   }
 
-  let url = await Link.create({ fullUrl, shortUrl, userId, userUrl: UsersUrl });
-
-  if (!url) {
-    return {
-      data: null,
-      message: "Something went Wrong",
-      statusCode: 400,
-    };
-  }
+  // Create link
+  const created = await Link.create({
+    fullUrl,
+    slug,
+    userSlug: userSlug || null,
+    userId
+  });
 
   return {
-    data: url,
-    message: "Url created",
     statusCode: 201,
+    data: created,
+    message: "Short URL created successfully"
   };
 };
 
-exports.getOneUrl = async (id, linkId) => {
-  if (!linkId || !id) {
+
+
+/// analytics
+exports.getOneUrl = async (userId, linkId) => {
+  if (!userId || !linkId) {
     return {
-      data: null,
       statusCode: 400,
+      data: null,
       message: "Required fields are missing",
     };
   }
 
-  let url = await Link.findOne({ _id: linkId, userId: id });
+  // 1. Fetch link owned by user
+  const url = await Link.findOne({ _id: linkId, userId });
 
   if (!url) {
     return {
+      statusCode: 404,
       data: null,
-      statusCode: 400,
-      message: "Cant found Link",
+      message: "Link not found",
     };
   }
 
-  let qrCode = await qrcode.toDataURL(url.fullUrl);
+  // 2. Generate QR code for the short URL (RECOMMENDED)
+  //    Use slug-based redirect, not full original URL
+  const shortLinkForQR = `${process.env.BASE_URL}/${url.slug}`;
+  const qrCode = await qrcode.toDataURL(shortLinkForQR);
 
-  let analytics = await Click.findOne({ linkId: url._id });
-
-  if (!analytics) {
-    return {
-      data: null,
-      statusCode: 400,
-      message: "Cant found Link",
-    };
-  }
+  // 3. Fetch analytics
+  const analytics = await Click.find({ linkId });
 
   return {
+    statusCode: 200,
+    message: "Fetched link analytics",
     data: {
+      url,
       qrCode,
       analytics,
+      totalClicks: analytics.length,
     },
-    message: "Fetched link",
-    statusCode: 200,
   };
 };
 
-exports.getShortLink = async (fullUrl, userUrl, shortUrl, userId) => {
+
+/// get all links without deep analytics
+
+exports.getShortLink = async ({ fullUrl, slug, userSlug, userId }) => {
+
   if (!userId) {
     return {
-      data: null,
       statusCode: 400,
-      message: "Required fields are missing",
+      data: null,
+      message: "User ID missing"
     };
   }
 
-  let url;
-  if (fullUrl) {
-    url = await Link.find({ userId, fullUrl });
+  // Query priority
+  const filter = { userId };
 
-    return {
-      data: url,
-      message: "Url found",
-      statusCode: 200,
-    };
-  } else if (shortUrl) {
-    url = await Link.find({ userId, shortUrl });
-    return {
-      data: url,
-      message: "Url found",
-      statusCode: 200,
-    };
-  } else if (userUrl) {
-    url = await Link.find({ userId, userUrl });
-    return {
-      data: url,
-      message: "Url found",
-      statusCode: 200,
-    };
-  }
+  if (fullUrl) filter.fullUrl = fullUrl;
+  if (slug) filter.slug = slug;
+  if (userSlug) filter.userSlug = userSlug;
 
-  let docs = await Link.countDocuments({ userId });
-
-  url = await Link.find({ userId });
+  const urls = await Link.find(filter);
 
   return {
+    statusCode: 200,
     data: {
-      "Total-Links": docs,
-      urls: url,
+      count: urls.length,
+      urls,
     },
-    message: "Url found",
-    statusCode: 200,
+    message: urls.length ? "Links found" : "No links found"
   };
 };
 
-exports.getSlugRandom = async (shortUrl, userAgent, country, referer) => {
-  if (!shortUrl) {
-    return {
-      data: null,
-      statusCode: 400,
-      message: "Required fields are missing",
-    };
+
+
+// redirect random slug
+// services 
+exports.getSlugRandom = async (slug, userAgent, ip, referer) => {
+  if (!slug) {
+    return { statusCode: 400, data: null, message: "Slug missing" };
   }
 
-  console.log(shortUrl, userAgent, country);
-
-  let url = await Link.findOne({ shortUrl });
+  let url = await Link.findOne({ slug });
 
   if (!url) {
-    return {
-      data: null,
-      statusCode: 404,
-      message: "Url not found",
-    };
+    return { statusCode: 404, data: null, message: "URL not found" };
   }
 
   if (url.isExpired || url.expiredDate < new Date()) {
-    return {
-      data: null,
-      statusCode: 400,
-      message: "Url expired",
-    };
+    return { statusCode: 400, data: null, message: "URL expired" };
   }
 
-  url.isClicks += 1;
+  // increment clicks
+  await Link.updateOne({ _id: url._id }, { $inc: { clicks: 1 } });
 
-  await url.save();
-
+  // parse analytics
   const { deviceType, os, browser } = parseDevice(userAgent);
+  const ipHash = await hashIp(ip);
+  const geo = geoIp.lookup(ip) || {};
 
-  const ipHash = await hashIp(country);
-
-  const geoInfo = geoIp.lookup(country) || {};
-
-  const click = await Click.create({
-    linkId: url._id,
-    referrer: referer,
-    deviceType,
-    browser,
-    os,
-    ipHash,
-    // timestamp: new Date(),
-    geo: {
-      range: geoInfo.range || null,
-      country: geoInfo.country || null,
-      region: geoInfo.region || null,
-      ll: geoInfo.ll || null,
-    },
-  });
-
-  return {
-    data: url,
-    statusCode: 200,
-    message: "Redirecting",
-  };
-};
-
-exports.getUserSlug = async (userUrl, userAgent, country, referer) => {
-  if (!userUrl) {
-    return {
-      data: null,
-      statusCode: 400,
-      message: "Required fields are missing",
-    };
-  }
-
-  let url = await Link.findOne({ userUrl });
-
-  if (!url) {
-    return {
-      data: null,
-      statusCode: 404,
-      message: "Url not found",
-    };
-  }
-
-  if (url.isExpired || url.expiredDate < new Date()) {
-    return {
-      data: null,
-      statusCode: 400,
-      message: "Url expired",
-    };
-  }
-
-  url.isClicks += 1;
-
-  await url.save();
-
-  const { deviceType, os, browser } = parseDevice(userAgent);
-
-  const ipHash = await hashIp(country);
-
-  const geoInfo = geoIp.lookup(country) || {};
-
-  const click = await Click.create({
-    linkId: url._id,
-    referrer: referer,
-    deviceType,
-    browser,
-    os,
-    ipHash,
-    // timestamp: new Date(),
-    geo: {
-      range: geoInfo.range || null,
-      country: geoInfo.country || null,
-      region: geoInfo.region || null,
-      ll: geoInfo.ll || null,
-    },
-  });
-
-  return {
-    data: url,
-    statusCode: 200,
-    message: "Redirecting",
-  };
-};
-
-exports.updateUrl = async (id, linkId, data, host, protocol) => {
-  if (!linkId || !id) {
-    return {
-      data: null,
-      statusCode: 400,
-      message: "Required fields are missing",
-    };
-  }
-
-  let url = await Link.findOne({ userId: id, _id: linkId });
-
-  if (!url) {
-    return {
-      data: null,
-      statusCode: 404,
-      message: "Not found",
-    };
-  }
-
-  if (data.userUrl) {
-    let slug = data.userUrl;
-    data.userUrl = `${protocol}://${host}/u/${slug}`;
-  }
-
-  const allowedUpdates = ["fullUrl", "userUrl"];
-  allowedUpdates.forEach((field) => {
-    if (data[field]) url[field] = data[field];
-  });
-
-  await url.save();
-
-  // if (!searchNameorId.fullUrl && !searchNameorId.userId && searchNameorId.id) {
-  //   url = await Link.findByIdAndUpdate(searchNameorId.id, data, { new: true });
-  // } else if (
-  //   !searchNameorId.fullUrl &&
-  //   searchNameorId.userId &&
-  //   !searchNameorId.id
-  // ) {
-  //   url = await Link.findOneAndUpdate({ userId: searchNameorId.userId }, data, {
-  //     new: true,
-  //   });
-  // } else if (
-  //   searchNameorId.fullUrl &&
-  //   !searchNameorId.userId &&
-  //   !searchNameorId.id
-  // ) {
-  //   url = await Link.findOneAndUpdate(
-  //     { fullUrl: searchNameorId.fullUrl },
-  //     data,
-  //     { new: true }
-  //   );
-  // }
-
-  return {
-    data: url,
-    statusCode: 200,
-    message: "Url updated",
-  };
-};
-
-exports.deleteUrl = async (searchNameorId, id) => {
-  if (!searchNameorId) {
-    return {
-      data: null,
-      statusCode: 400,
-      message: "Required fields are missing",
-    };
-  }
-
-  let url;
-  if (
-    !searchNameorId.fullUrl &&
-    !searchNameorId.shortUrl &&
-    !searchNameorId.userUrl &&
-    searchNameorId.id
-  ) {
-    url = await Link.findOneAndDelete({ _id: searchNameorId.id, userId: id });
-  } else if (
-    searchNameorId.fullUrl &&
-    !searchNameorId.shortUrl &&
-    !searchNameorId.userUrl &&
-    !searchNameorId.id
-  ) {
-    url = await Link.findOneAndDelete({
-      fullUrl: searchNameorId.fullUrl,
-      userId: id,
+  // prevent double count from same IP
+  const exists = await Click.findOne({ ipHash, linkId: url._id });
+  if (!exists) {
+    await Click.create({
+      linkId: url._id,
+      referrer: referer,
+      deviceType,
+      browser,
+      os,
+      ipHash,
+      geo: {
+        range: geo.range || null,
+        country: geo.country || null,
+        region: geo.region || null,
+        ll: geo.ll || null
+      }
     });
-  } else if (
-    !searchNameorId.fullUrl &&
-    searchNameorId.shortUrl &&
-    !searchNameorId.userUrl &&
-    !searchNameorId.id
-  ) {
-    url = await Link.findOneAndDelete({shortUrl:searchNameorId.shortUrl,userId:id})
-  }else if (
-    !searchNameorId.fullUrl &&
-    !searchNameorId.shortUrl &&
-    searchNameorId.userUrl &&
-    !searchNameorId.id
-  ) {
-    url = await Link.findOneAndDelete({userUrl:searchNameorId.userUrl,userId:id})
   }
+
+  return { statusCode: 200, data: url, message: "Redirecting" };
+};
+
+
+
+
+/// redirect user slug
+exports.getUserSlug = async (userSlug, userAgent, ip, referer) => {
+  if (!userSlug) {
+    return { statusCode: 400, data: null, message: "Slug missing" };
+  }
+
+  let url = await Link.findOne({ userSlug });
+
+  if (!url) {
+    return { statusCode: 404, data: null, message: "URL not found" };
+  }
+
+  if (url.isExpired || url.expiredDate < new Date()) {
+    return { statusCode: 400, data: null, message: "URL expired" };
+  }
+
+  await Link.updateOne({ _id: url._id }, { $inc: { clicks: 1 } });
+
+  const { deviceType, os, browser } = parseDevice(userAgent);
+  const ipHash = await hashIp(ip);
+  const geo = geoIp.lookup(ip) || {};
+
+  const exists = await Click.findOne({ ipHash, linkId: url._id });
+  if (!exists) {
+    await Click.create({
+      linkId: url._id,
+      referrer: referer,
+      deviceType,
+      browser,
+      os,
+      ipHash,
+      geo: {
+        range: geo.range || null,
+        country: geo.country || null,
+        region: geo.region || null,
+        ll: geo.ll || null,
+      },
+    });
+  }
+
+  return { statusCode: 200, data: url, message: "Redirecting" };
+};
+
+
+
+
+
+exports.updateUrl = async (userId, search, data, host, protocol) => {
+  if (!search || typeof search !== "object") {
+    return { data: null, statusCode: 400, message: "Search field required" };
+  }
+
+  if (!data || typeof data !== "object") {
+    return { data: null, statusCode: 400, message: "Updated data required" };
+  }
+
+  if (!search.id) {
+    return { data: null, statusCode: 400, message: "id is required in search" };
+  }
+
+  // find the link
+  let url = await Link.findOne({ _id: search.id, userId });
+  if (!url) {
+    return { data: null, statusCode: 404, message: "URL not found" };
+  }
+
+  // if user is updating custom user URL
+  if (data.userUrl) {
+    const newSlug = data.userUrl.trim();
+
+    const existing = await Link.findOne({
+      userUrl: newSlug,
+      _id: { $ne: url._id },
+    });
+
+    if (existing) {
+      return {
+        data: null,
+        statusCode: 400,
+        message: "Custom user URL already exists",
+      };
+    }
+
+    data.userUrl = newSlug; // store ONLY slug
+  }
+
+  // apply safe updates
+  const allowed = ["fullUrl", "userUrl"];
+  allowed.forEach((field) => {
+    if (data[field] !== undefined) url[field] = data[field];
+  });
+
+  await url.save();
 
   return {
     data: url,
     statusCode: 200,
-    message: "Url deleted",
+    message: "URL updated successfully",
   };
 };
+
+
+
+
+
+
+
+/// delete urls
+exports.deleteUrl = async (search, userId) => {
+  if (!search || typeof search !== "object") {
+    return { data: null, statusCode: 400, message: "Search field required" };
+  }
+
+  const keys = Object.keys(search);
+  if (keys.length !== 1) {
+    return {
+      data: null,
+      statusCode: 400,
+      message: "Send exactly one search field",
+    };
+  }
+
+  const key = keys[0];
+  const value = search[key];
+
+  if (!value) {
+    return { data: null, statusCode: 400, message: "Search value missing" };
+  }
+
+  const query = key === "id"
+    ? { _id: value, userId }
+    : { [key]: value, userId };
+
+  const deleted = await Link.findOneAndDelete(query);
+
+  if (!deleted) {
+    return { data: null, statusCode: 404, message: "URL not found" };
+  }
+
+  return {
+    data: deleted,
+    statusCode: 200,
+    message: "URL deleted successfully",
+  };
+};
+
