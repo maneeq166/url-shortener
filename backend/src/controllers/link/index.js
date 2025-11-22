@@ -71,7 +71,7 @@ exports.handleSlugUserUrl = asyncHandler(async(req,res)=>{
   const referer = req.headers.referer || "direct";
   const country = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
-  const userUrl = `${protocol}://${host}/user/${slug}`;
+  const userUrl = `${protocol}://${host}/u/${slug}`;
 
   const {message,data,statusCode} = await getUserSlug(userUrl,userAgent,country,referer);
 
@@ -99,9 +99,12 @@ exports.handleOneUrlAnalyticsAndQrCode  = asyncHandler(async(req,res)=>{
 
 
 exports.handleUrlUpdation = asyncHandler(async(req,res)=>{
+  const host = req.get("host");
+  const protocol = req.protocol;
   const {search,updatedData} = req.body;
+  const id = req.id;
 
-  const result = await updateUrl(search,updatedData);
+  const result = await updateUrl(id,search,updatedData,host,protocol);
 
   const { message, data, statusCode } = result;
 
@@ -114,7 +117,8 @@ exports.handleUrlUpdation = asyncHandler(async(req,res)=>{
 
 exports.handleUrlDeletion = asyncHandler(async(req,res)=>{
   const {search } = req.body;
-  const result = await deleteUrl(search);
+  const id = req.id
+  const result = await deleteUrl(search,id);
 
   const { message, data, statusCode } = result;
 

@@ -1,9 +1,9 @@
 const { nanoid } = require("nanoid");
 const { Link } = require("../../models/link/index");
-const { Click} = require("../../models/click/index");
+const { Click } = require("../../models/click/index");
 const { parseDevice, hashIp } = require("../../config/analytics");
 const geoIp = require("geoip-lite");
-const qrcode = require("qrcode")
+const qrcode = require("qrcode");
 
 exports.createShortLink = async (
   fullUrl,
@@ -11,7 +11,7 @@ exports.createShortLink = async (
   userId,
   size,
   protocol,
-  host,
+  host
 ) => {
   if (!fullUrl || !userId || !size) {
     return {
@@ -21,7 +21,7 @@ exports.createShortLink = async (
     };
   }
 
-  let UsersUrl = `${protocol}://${host}/user/${userUrl}`;
+  let UsersUrl = `${protocol}://${host}/u/${userUrl}`;
 
   let urlOfUser = await Link.findOne({ userUrl: UsersUrl });
 
@@ -47,11 +47,7 @@ exports.createShortLink = async (
     };
   }
 
- 
-
-
   let url = await Link.create({ fullUrl, shortUrl, userId, userUrl: UsersUrl });
-  
 
   if (!url) {
     return {
@@ -68,49 +64,46 @@ exports.createShortLink = async (
   };
 };
 
-exports.getOneUrl = async (id,linkId) =>{
-  if(!linkId || !id){
+exports.getOneUrl = async (id, linkId) => {
+  if (!linkId || !id) {
     return {
-      data:null,
-      statusCode:400,
-      message:"Required fields are missing"
-    }
+      data: null,
+      statusCode: 400,
+      message: "Required fields are missing",
+    };
   }
 
-  console.log(linkId,id);
-  
+  let url = await Link.findOne({ _id: linkId, userId: id });
 
- let url = await Link.findOne({ _id: linkId, userId: id });
-
-
-  if(!url){
-    return{
-      data:null,
-      statusCode:400,
-      message:"Cant found Link"
-    }
+  if (!url) {
+    return {
+      data: null,
+      statusCode: 400,
+      message: "Cant found Link",
+    };
   }
 
   let qrCode = await qrcode.toDataURL(url.fullUrl);
 
-  let analytics = await Click.findOne({linkId:url._id});
-  
-  if(!analytics){
-    return{
-      data:null,
-      statusCode:400,
-      message:"Cant found Link"
-    }
+  let analytics = await Click.findOne({ linkId: url._id });
+
+  if (!analytics) {
+    return {
+      data: null,
+      statusCode: 400,
+      message: "Cant found Link",
+    };
   }
 
-  return{
-    data:{
-      qrCode,analytics
+  return {
+    data: {
+      qrCode,
+      analytics,
     },
-    message:"Fetched link",
-    statusCode:200
-  }
-}
+    message: "Fetched link",
+    statusCode: 200,
+  };
+};
 
 exports.getShortLink = async (fullUrl, userUrl, shortUrl, userId) => {
   if (!userId) {
@@ -149,7 +142,6 @@ exports.getShortLink = async (fullUrl, userUrl, shortUrl, userId) => {
   let docs = await Link.countDocuments({ userId });
 
   url = await Link.find({ userId });
-  
 
   return {
     data: {
@@ -161,9 +153,7 @@ exports.getShortLink = async (fullUrl, userUrl, shortUrl, userId) => {
   };
 };
 
-exports.getSlugRandom = async (shortUrl,userAgent,
-  country,
-  referer) => {
+exports.getSlugRandom = async (shortUrl, userAgent, country, referer) => {
   if (!shortUrl) {
     return {
       data: null,
@@ -172,8 +162,7 @@ exports.getSlugRandom = async (shortUrl,userAgent,
     };
   }
 
-  console.log(shortUrl,userAgent,country);
-  
+  console.log(shortUrl, userAgent, country);
 
   let url = await Link.findOne({ shortUrl });
 
@@ -197,13 +186,11 @@ exports.getSlugRandom = async (shortUrl,userAgent,
 
   await url.save();
 
-   const {deviceType,os,browser} = parseDevice(userAgent);
-
+  const { deviceType, os, browser } = parseDevice(userAgent);
 
   const ipHash = await hashIp(country);
 
   const geoInfo = geoIp.lookup(country) || {};
-
 
   const click = await Click.create({
     linkId: url._id,
@@ -220,7 +207,6 @@ exports.getSlugRandom = async (shortUrl,userAgent,
       ll: geoInfo.ll || null,
     },
   });
-  
 
   return {
     data: url,
@@ -229,7 +215,7 @@ exports.getSlugRandom = async (shortUrl,userAgent,
   };
 };
 
-exports.getUserSlug = async (userUrl,userAgent,country,referer) => {
+exports.getUserSlug = async (userUrl, userAgent, country, referer) => {
   if (!userUrl) {
     return {
       data: null,
@@ -238,7 +224,7 @@ exports.getUserSlug = async (userUrl,userAgent,country,referer) => {
     };
   }
 
- let url = await Link.findOne({ userUrl });
+  let url = await Link.findOne({ userUrl });
 
   if (!url) {
     return {
@@ -260,13 +246,11 @@ exports.getUserSlug = async (userUrl,userAgent,country,referer) => {
 
   await url.save();
 
-   const {deviceType,os,browser} = parseDevice(userAgent);
-
+  const { deviceType, os, browser } = parseDevice(userAgent);
 
   const ipHash = await hashIp(country);
 
   const geoInfo = geoIp.lookup(country) || {};
-
 
   const click = await Click.create({
     linkId: url._id,
@@ -284,8 +268,6 @@ exports.getUserSlug = async (userUrl,userAgent,country,referer) => {
     },
   });
 
-
-
   return {
     data: url,
     statusCode: 200,
@@ -293,8 +275,8 @@ exports.getUserSlug = async (userUrl,userAgent,country,referer) => {
   };
 };
 
-exports.updateUrl = async (searchNameorId, data) => {
-  if (!searchNameorId) {
+exports.updateUrl = async (id, linkId, data, host, protocol) => {
+  if (!linkId || !id) {
     return {
       data: null,
       statusCode: 400,
@@ -302,28 +284,49 @@ exports.updateUrl = async (searchNameorId, data) => {
     };
   }
 
-  let url;
-  if (!searchNameorId.fullUrl && !searchNameorId.userId && searchNameorId.id) {
-    url = await Link.findByIdAndUpdate(searchNameorId.id, data, { new: true });
-  } else if (
-    !searchNameorId.fullUrl &&
-    searchNameorId.userId &&
-    !searchNameorId.id
-  ) {
-    url = await Link.findOneAndUpdate({ userId: searchNameorId.userId }, data, {
-      new: true,
-    });
-  } else if (
-    searchNameorId.fullUrl &&
-    !searchNameorId.userId &&
-    !searchNameorId.id
-  ) {
-    url = await Link.findOneAndUpdate(
-      { fullUrl: searchNameorId.fullUrl },
-      data,
-      { new: true }
-    );
+  let url = await Link.findOne({ userId: id, _id: linkId });
+
+  if (!url) {
+    return {
+      data: null,
+      statusCode: 404,
+      message: "Not found",
+    };
   }
+
+  if (data.userUrl) {
+    let slug = data.userUrl;
+    data.userUrl = `${protocol}://${host}/u/${slug}`;
+  }
+
+  const allowedUpdates = ["fullUrl", "userUrl"];
+  allowedUpdates.forEach((field) => {
+    if (data[field]) url[field] = data[field];
+  });
+
+  await url.save();
+
+  // if (!searchNameorId.fullUrl && !searchNameorId.userId && searchNameorId.id) {
+  //   url = await Link.findByIdAndUpdate(searchNameorId.id, data, { new: true });
+  // } else if (
+  //   !searchNameorId.fullUrl &&
+  //   searchNameorId.userId &&
+  //   !searchNameorId.id
+  // ) {
+  //   url = await Link.findOneAndUpdate({ userId: searchNameorId.userId }, data, {
+  //     new: true,
+  //   });
+  // } else if (
+  //   searchNameorId.fullUrl &&
+  //   !searchNameorId.userId &&
+  //   !searchNameorId.id
+  // ) {
+  //   url = await Link.findOneAndUpdate(
+  //     { fullUrl: searchNameorId.fullUrl },
+  //     data,
+  //     { new: true }
+  //   );
+  // }
 
   return {
     data: url,
@@ -332,7 +335,7 @@ exports.updateUrl = async (searchNameorId, data) => {
   };
 };
 
-exports.deleteUrl = async (searchNameorId) => {
+exports.deleteUrl = async (searchNameorId, id) => {
   if (!searchNameorId) {
     return {
       data: null,
@@ -342,20 +345,37 @@ exports.deleteUrl = async (searchNameorId) => {
   }
 
   let url;
-  if (!searchNameorId.fullUrl && !searchNameorId.userId && searchNameorId.id) {
-    url = await Link.findByIdAndDelete(searchNameorId.id);
-  } else if (
+  if (
     !searchNameorId.fullUrl &&
-    searchNameorId.userId &&
-    !searchNameorId.id
+    !searchNameorId.shortUrl &&
+    !searchNameorId.userUrl &&
+    searchNameorId.id
   ) {
-    url = await Link.findOneAndDelete({ userId: searchNameorId.userId });
+    url = await Link.findOneAndDelete({ _id: searchNameorId.id, userId: id });
   } else if (
     searchNameorId.fullUrl &&
-    !searchNameorId.userId &&
+    !searchNameorId.shortUrl &&
+    !searchNameorId.userUrl &&
     !searchNameorId.id
   ) {
-    url = await Link.findOneAndDelete({ fullUrl: searchNameorId.fullUrl });
+    url = await Link.findOneAndDelete({
+      fullUrl: searchNameorId.fullUrl,
+      userId: id,
+    });
+  } else if (
+    !searchNameorId.fullUrl &&
+    searchNameorId.shortUrl &&
+    !searchNameorId.userUrl &&
+    !searchNameorId.id
+  ) {
+    url = await Link.findOneAndDelete({shortUrl:searchNameorId.shortUrl,userId:id})
+  }else if (
+    !searchNameorId.fullUrl &&
+    !searchNameorId.shortUrl &&
+    searchNameorId.userUrl &&
+    !searchNameorId.id
+  ) {
+    url = await Link.findOneAndDelete({userUrl:searchNameorId.userUrl,userId:id})
   }
 
   return {

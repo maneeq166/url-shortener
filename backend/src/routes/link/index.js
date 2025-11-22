@@ -12,12 +12,12 @@ const { isUserOrAdmin } = require("../../middleware/authMiddleware");
 const router = require("express").Router();
 
 router
-  .route("/")
+  .route("/link")
   .post(isUserOrAdmin, handleLinkCreation)
-  .get(isUserOrAdmin, handleLinkRead).put(handleUrlUpdation).delete(handleUrlDeletion);// update , delete testing remaining and then frontedn
-router.get("/user/:slug", handleSlugUserUrl);       // static first
+  .get(isUserOrAdmin, handleLinkRead).put(isUserOrAdmin,handleUrlUpdation).delete(isUserOrAdmin,handleUrlDeletion);// update , delete testing remaining and then frontedn
+router.get("/u/:slug", handleSlugUserUrl);       
 router.get("/analytics",isUserOrAdmin, handleOneUrlAnalyticsAndQrCode);
-router.get("/:slugs", handleSlugRandom);            // dynamic last
+router.get("/:slugs", handleSlugRandom);           
 
 
 module.exports = router;
