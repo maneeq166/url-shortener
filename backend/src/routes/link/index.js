@@ -17,7 +17,7 @@ router
   .get(isUserOrAdmin, handleLinkRead).put(isUserOrAdmin,handleUrlUpdation).delete(isUserOrAdmin,handleUrlDeletion);// update , delete testing remaining and then frontedn
 router.get("/u/:slug", handleSlugUserUrl);       
 router.get("/analytics",isUserOrAdmin, handleOneUrlAnalyticsAndQrCode);
-router.get("/:slugs", handleSlugRandom);           
+router.get("/:slug", handleSlugRandom);           
 
 
 module.exports = router;
