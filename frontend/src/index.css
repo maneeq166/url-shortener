@@ -23,18 +23,56 @@
 }
 
 @theme {
-  --color-purp-100: #F3E8FF;   /* very light lavender */
-  --color-purp-200: #E2C6FF;   /* soft lilac */
-  --color-purp-300: #CBA0FF;   /* pastel purple */
-  --color-purp-400: #A678F5;   /* light purple glow */
-  --color-purp-500: #7E3AED;   /* medium royal purple */
-  --color-purp-600: #6B21A8;   /* strong deep purple */
-  --color-purp-700: #581C87;   /* rich plum */
-  --color-purp-800: #3B0764;   /* dark indigo purple */
-  --color-purp-900: #23094D;   /* very deep purple (used in gradient start) */
-  --color-purp-950: #1A0433;   /* near-black violet */
-  --color-purp-1000: #000000;  /* pure black base */
+  /* ----------------------------- */
+  /* BLACK SCALE                   */
+  /* ----------------------------- */
+  --color-black-50:   #f6f6f6;
+  --color-black-100:  #e3e3e3;
+  --color-black-200:  #c8c8c8;
+  --color-black-300:  #a4a4a4;
+  --color-black-400:  #7a7a7a;
+  --color-black-500:  #525252;   /* Neutral grey-black */
+  --color-black-600:  #3a3a3a;
+  --color-black-700:  #262626;
+  --color-black-800:  #171717;
+  --color-black-900:  #0d0d0d;
+  --color-black-950:  #000000;   /* Pure black */
+
+
+  /* ----------------------------- */
+  /* BLUE SCALE                    */
+  /* Modern clean UI blue colors   */
+  /* ----------------------------- */
+  --color-blue-50:   #ebf3ff;
+  --color-blue-100:  #d1e5ff;
+  --color-blue-200:  #a3caff;
+  --color-blue-300:  #75afff;
+  --color-blue-400:  #478fff;
+  --color-blue-500:  #1a73e8;     /* Google blue */
+  --color-blue-600:  #155fc2;
+  --color-blue-700:  #104b9c;
+  --color-blue-800:  #0b3876;
+  --color-blue-900:  #072652;
+  --color-blue-950:  #031326;
+
+
+  /* ----------------------------- */
+  /* GRAY SCALE                    */
+  /* This matches Tailwind's gray  */
+  /* ----------------------------- */
+  --color-gray-50:   #f9fafb;
+  --color-gray-100:  #f3f4f6;
+  --color-gray-200:  #e5e7eb;
+  --color-gray-300:  #d1d5db;
+  --color-gray-400:  #9ca3af;
+  --color-gray-500:  #6b7280;
+  --color-gray-600:  #4b5563;
+  --color-gray-700:  #374151;
+  --color-gray-800:  #1f2937;
+  --color-gray-900:  #111827;
+  --color-gray-950:  #0b0f19;
 }
+
 
 
 body {
