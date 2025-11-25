@@ -1,26 +1,36 @@
 import { useEffect, useState } from "react";
+import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
 
 export default function ThemeToggle() {
-  const [mode, setMode] = useState(
-    localStorage.getItem("theme") || "dark"
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme") || 
+    (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
   );
 
+  // Apply theme to <html>
   useEffect(() => {
-    if (mode === "dark") {
-      document.documentElement.classList.add("dark");
+    const root = document.documentElement;
+
+    if (theme === "dark") {
+      root.classList.add("dark");
       localStorage.setItem("theme", "dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      root.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
-  }, [mode]);
+  }, [theme]);
 
   return (
     <button
-      onClick={() => setMode(mode === "dark" ? "light" : "dark")}
-      className="px-3 py-1 border rounded-md"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="p-2 rounded-lg border border-gray-300 dark:border-gray-700 
+                 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
     >
-      {mode === "dark" ? "Light" : "Dark"} Mode
+      {theme === "dark" ? (
+        <SunIcon className="w-5 h-5 text-yellow-400" />
+      ) : (
+        <MoonIcon className="w-5 h-5 text-gray-800" />
+      )}
     </button>
   );
 }
