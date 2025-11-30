@@ -49,9 +49,15 @@ exports.createShortLink = async (fullUrl, userSlug, userId, size) => {
     userId,
   });
 
+  const urlForQr = `${process.env.BASE_URL}/${created.slug}`;
+  const qrCode = qrcode.toDataURL(urlForQr);
+
   return {
     statusCode: 201,
-    data: created,
+    data:{
+      created,
+      qrCode
+    },
     message: "Short URL created successfully",
   };
 };
