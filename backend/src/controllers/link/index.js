@@ -8,11 +8,11 @@ exports.handleLinkCreation = asyncHandler(async (req, res) => {
   const userId = req.id;
   const { fullUrl, userSlug, size } = req.body;
 
-  const result = await createShortLink(fullUrl, userSlug, userId, size);
+  const {statusCode,data,message} = await createShortLink(fullUrl, userSlug, userId, size);
 
   return res
-    .status(result.statusCode)
-    .json(new ApiResponse(result.statusCode, result.data, result.message));
+    .status(statusCode)
+    .json(new ApiResponse(statusCode,data,message));
 });
 
 

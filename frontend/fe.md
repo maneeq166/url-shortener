@@ -259,3 +259,198 @@ frontend/
 ☑️ Tailwind for styling
 
 
+Below is **exactly what goes inside each folder** in your React frontend for your URL shortener SaaS project.
+No code dump — only what files you need and what each file is responsible for.
+
+---
+
+# ✅ **1. `src/api/` — API Layer (all axios requests)**
+
+This folder contains **functions that call your backend APIs**.
+Each file corresponds to a backend feature.
+
+### **Files inside `/api`**
+
+```
+api/
+ ├── auth.js
+ ├── links.js
+ ├── analytics.js
+ └── axiosInstance.js
+```
+
+### **What each file does**
+
+#### **🔥 `axiosInstance.js`**
+
+Contains a pre-configured axios client:
+
+* baseURL set to `import.meta.env.VITE_API_URL`
+* interceptors for JWT token
+
+#### **🔥 `auth.js`**
+
+Functions for:
+
+* login
+* register
+* logout
+
+#### **🔥 `links.js`**
+
+Functions for:
+
+* create short link
+* get all links of user
+* update link
+* delete link
+* get one link with QR + analytics
+
+#### **🔥 `analytics.js`**
+
+Functions for:
+
+* fetch analytics list
+* fetch stats for charts
+* fetch device breakdown
+* fetch referers
+
+---
+
+# ✅ **2. `src/hooks/` — Reusable logic hooks**
+
+This folder contains **custom hooks**.
+
+### **Files inside `/hooks`**
+
+```
+hooks/
+ ├── useAuth.js
+ ├── useFetch.js
+ └── useTheme.js
+```
+
+### **What each hook does**
+
+#### **🔥 `useAuth.js`**
+
+Handles:
+
+* get logged-in user
+* save token
+* logout function
+* check if authenticated
+* auto-redirect on invalid token
+
+Used inside protected pages.
+
+#### **🔥 `useFetch.js`**
+
+Generic hook:
+
+* loading
+* error
+* data
+* refetch function
+
+Used in pages like:
+
+* Dashboard
+* LinkDetails
+
+#### **🔥 `useTheme.js`**
+
+Handles:
+
+* dark/light mode
+* saving theme in localStorage
+
+---
+
+# ✅ **3. `src/utils/` — Helper utilities**
+
+Utility folder for functions used everywhere.
+
+### **Files inside `/utils`**
+
+```
+utils/
+ ├── validateUrl.js
+ ├── copyToClipboard.js
+ ├── formatDate.js
+ ├── formatNumber.js
+ ├── parseDeviceIcon.js
+ └── env.js
+```
+
+### **What each file does**
+
+#### **🔥 `validateUrl.js`**
+
+Checks:
+
+* valid URL format
+* starts with http/https
+
+Used before calling API.
+
+#### **🔥 `copyToClipboard.js`**
+
+Utility to copy short URL.
+
+#### **🔥 `formatDate.js`**
+
+Formats timestamps for tables:
+
+* `DD MMM YYYY`
+* `2 hours ago`
+
+#### **🔥 `formatNumber.js`**
+
+Prettifies analytics numbers:
+
+* 10340 → “10.3K”
+* 1000000 → “1M”
+
+#### **🔥 `parseDeviceIcon.js`**
+
+Given:
+
+```
+"mobile"
+```
+
+returns:
+
+```
+<MobileIcon />
+```
+
+For Analytics page UI.
+
+#### **🔥 `env.js`**
+
+Reads environment variables safely:
+
+```
+export const API_URL = import.meta.env.VITE_API_URL;
+```
+
+---
+
+# Summary Table
+
+| Folder   | Purpose                               |
+| -------- | ------------------------------------- |
+| `/api`   | Handles all backend requests (axios)  |
+| `/hooks` | Logic helpers like auth, fetch, theme |
+| `/utils` | Reusable helper functions             |
+
+---
+
+If you want next, I can generate:
+**1) The full `api/axiosInstance.js` file**
+**2) The complete `auth.js`, `links.js`, `analytics.js`**
+**3) The full folder structure ready to copy-paste**
+
+Tell me which you want next.

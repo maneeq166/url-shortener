@@ -50,7 +50,7 @@ exports.createShortLink = async (fullUrl, userSlug, userId, size) => {
   });
 
   const urlForQr = `${process.env.BASE_URL}/${created.slug}`;
-  const qrCode = qrcode.toDataURL(urlForQr);
+  const qrCode = await qrcode.toDataURL(urlForQr);
 
   return {
     statusCode: 201,

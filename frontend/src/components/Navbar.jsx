@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
+  const nav = useNavigate();
   return (
     <nav
       className="
@@ -13,7 +15,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         
         {/* Brand */}
-        <h1 className="text-xl font-semibold text-gray-100 tracking-tight">
+        <h1 className="text-xl font-semibold text-gray-100 tracking-tight cursor-pointer" onClick={()=>nav("/")}   >
           URL<span className="text-blue-500">Shortener</span>
         </h1>
 
@@ -26,6 +28,7 @@ export default function Navbar() {
               text-gray-300 hover:text-blue-400
               transition-colors
             "
+            onClick={()=>nav("/login")}
           >
             Login
           </button>
@@ -38,6 +41,7 @@ export default function Navbar() {
               text-white
               shadow-sm transition-all
             "
+            onClick={()=>nav("/register")}
           >
             Register
           </button>
