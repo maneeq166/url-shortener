@@ -15,7 +15,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         
         {/* Brand */}
-        <h1 className="text-xl font-semibold text-gray-100 tracking-tight cursor-pointer" onClick={()=>nav("/")}   >
+        <h1 className="text-xl font-semibold text-gray-100 tracking-tight cursor-pointer  " onClick={()=>nav("/")}   >
           URL<span className="text-blue-500">Shortener</span>
         </h1>
 
@@ -27,6 +27,7 @@ export default function Navbar() {
               text-sm font-medium
               text-gray-300 hover:text-blue-400
               transition-colors
+              cursor-pointer
             "
             onClick={()=>nav("/login")}
           >
@@ -40,6 +41,7 @@ export default function Navbar() {
               bg-blue-500 hover:bg-blue-600
               text-white
               shadow-sm transition-all
+              cursor-pointer
             "
             onClick={()=>nav("/register")}
           >

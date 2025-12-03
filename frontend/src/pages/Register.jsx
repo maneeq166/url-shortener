@@ -1,19 +1,33 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { registerSchema } from "../validation/authSchema";
+import { register as registerUser } from "../api/auth";
 
 export default function Register() {
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    password: "",
+  const [loading, setLoading] = useState(false);
+
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(registerSchema)
   });
+
+  const onSubmit = async (values) => {
+    setLoading(true);
+
+    const res = await registerUser(values);
+
+    setLoading(false);
+
+    if (!res.success) return;
+  };
 
   return (
     <div className="min-h-screen bg-black-950 text-gray-100">
       <Navbar />
 
-      <div className="max-w-md mx-auto mt-24  px-6">
-        {/* Heading */}
+      <div className="max-w-md mx-auto mt-24 px-6">
+
         <h2 className="text-4xl font-bold text-center tracking-tight text-gray-100">
           Create an Account
         </h2>
@@ -21,8 +35,8 @@ export default function Register() {
           Join and start creating short links with analytics.
         </p>
 
-        {/* Form Card */}
-        <div
+        <form
+          onSubmit={handleSubmit(onSubmit)}
           className="
             mt-10 p-8 rounded-2xl
             bg-black-900/40 dark:bg-black-900/50
@@ -32,16 +46,10 @@ export default function Register() {
         >
           {/* Username */}
           <div className="mb-5">
-            <label className="block text-sm mb-1 text-gray-300">
-              Username
-            </label>
+            <label className="block text-sm mb-1 text-gray-300">Username</label>
             <input
               type="text"
-              value={form.username}
-              onChange={(e) =>
-                setForm({ ...form, username: e.target.value })
-              }
-              placeholder="Your username"
+              {...register("username")}
               className="
                 w-full px-5 py-3.5 rounded-xl
                 bg-black-800 text-gray-100
@@ -50,21 +58,17 @@ export default function Register() {
                 focus:border-blue-500 focus:ring-blue-500
                 outline-none transition
               "
+              placeholder="Your username"
             />
+            <p className="text-red-400 text-sm">{errors.username?.message}</p>
           </div>
 
           {/* Email */}
           <div className="mb-5">
-            <label className="block text-sm mb-1 text-gray-300">
-              Email
-            </label>
+            <label className="block text-sm mb-1 text-gray-300">Email</label>
             <input
               type="email"
-              value={form.email}
-              onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
-              }
-              placeholder="you@example.com"
+              {...register("email")}
               className="
                 w-full px-5 py-3.5 rounded-xl
                 bg-black-800 text-gray-100
@@ -73,21 +77,17 @@ export default function Register() {
                 focus:border-blue-500 focus:ring-blue-500
                 outline-none transition
               "
+              placeholder="you@example.com"
             />
+            <p className="text-red-400 text-sm">{errors.email?.message}</p>
           </div>
 
           {/* Password */}
           <div className="mb-5">
-            <label className="block text-sm mb-1 text-gray-300">
-              Password
-            </label>
+            <label className="block text-sm mb-1 text-gray-300">Password</label>
             <input
               type="password"
-              value={form.password}
-              onChange={(e) =>
-                setForm({ ...form, password: e.target.value })
-              }
-              placeholder="••••••••"
+              {...register("password")}
               className="
                 w-full px-5 py-3.5 rounded-xl
                 bg-black-800 text-gray-100
@@ -96,11 +96,14 @@ export default function Register() {
                 focus:border-blue-500 focus:ring-blue-500
                 outline-none transition
               "
+              placeholder="••••••••"
             />
+            <p className="text-red-400 text-sm">{errors.password?.message}</p>
           </div>
 
-          {/* Register button */}
+          {/* Button */}
           <button
+            disabled={loading}
             className="
               w-full py-3.5 rounded-xl
               bg-blue-600 hover:bg-blue-500
@@ -108,17 +111,13 @@ export default function Register() {
               transition-all shadow-sm hover:shadow-blue-500/20
             "
           >
-            Create Account
+            {loading ? "Creating..." : "Create Account"}
           </button>
-        </div>
+        </form>
 
-        {/* Footer */}
         <p className="mt-8 pb-10 text-center text-sm text-gray-400">
           Already have an account?{" "}
-          <a
-            href="/login"
-            className="text-blue-400 font-semibold hover:underline"
-          >
+          <a href="/login" className="text-blue-400 font-semibold hover:underline">
             Login
           </a>
         </p>
