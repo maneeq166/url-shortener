@@ -8,10 +8,10 @@ export default function Login() {
   });
 
   return (
-    <div className="min-h-screen bg-black-950 text-gray-100">
-      <Navbar />
+    <div className=" bg-black-950 text-gray-100">
+      {/* <Navbar /> */}
 
-      <div className="max-w-md mx-auto mt-24 px-6">
+      <div className="max-w-md mx-auto mt-10 px-6">
         {/* Heading */}
         <h2 className="text-4xl font-bold text-center tracking-tight text-gray-100">
           Login to Your Account

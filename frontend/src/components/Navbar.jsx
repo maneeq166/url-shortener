@@ -48,7 +48,7 @@ export default function Navbar() {
             Register
           </button>
 
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
         </div>
       </div>
     </nav>
