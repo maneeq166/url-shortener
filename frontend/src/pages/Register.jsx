@@ -4,9 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { registerSchema } from "../validation/authSchema";
 import { register as registerUser } from "../api/auth";
+import { useNavigate } from "react-router";
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
+  const nav = useNavigate();
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema)
@@ -20,6 +22,9 @@ export default function Register() {
     setLoading(false);
 
     if (!res.success) return;
+
+    nav("/login")
+
   };
 
   return (

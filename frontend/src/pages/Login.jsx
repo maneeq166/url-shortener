@@ -1,11 +1,32 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "../validation/authSchema";
+import { login } from "../api/auth";
 
 export default function Login() {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+  const [loading,setLoading] = useState(false);
+  const nav = useNavigate();
+
+  const {register,handleSubmit,formState:{errors}}=useForm({
+    resolver:zodResolver(loginSchema)
+  })
+
+  const onSubmit = async (values) =>{
+    setLoading(true);
+
+    const res = await login(values);
+
+    setLoading(false);
+
+    if(!res.success) return;
+
+    nav("/")
+  }
+
+ 
 
   return (
     <div className=" bg-black-950 text-gray-100">
@@ -21,7 +42,8 @@ export default function Login() {
         </p>
 
         {/* Form Card */}
-        <div
+        <form
+        onSubmit={handleSubmit(onSubmit)}
           className="
             mt-10 p-8 rounded-2xl
             bg-black-900/40 dark:bg-black-900/50
@@ -36,10 +58,7 @@ export default function Login() {
             </label>
             <input
               type="email"
-              value={form.email}
-              onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
-              }
+              {...register("email")}
               placeholder="you@example.com"
               className="
                 w-full px-5 py-3.5 rounded-xl
@@ -59,10 +78,7 @@ export default function Login() {
             </label>
             <input
               type="password"
-              value={form.password}
-              onChange={(e) =>
-                setForm({ ...form, password: e.target.value })
-              }
+              {...register("password")}
               placeholder="••••••••"
               className="
                 w-full px-5 py-3.5 rounded-xl
@@ -77,6 +93,7 @@ export default function Login() {
 
           {/* Login button */}
           <button
+          disabled={loading}
             className="
               w-full py-3.5 rounded-xl
               bg-blue-600 hover:bg-blue-500
@@ -84,9 +101,9 @@ export default function Login() {
               transition-all shadow-sm hover:shadow-blue-500/20
             "
           >
-            Login
+            {loading?"Logging in...":"Login"}
           </button>
-        </div>
+        </form>
 
         {/* Footer */}
         <p className="mt-8 pb-10 text-center text-sm text-gray-400">
