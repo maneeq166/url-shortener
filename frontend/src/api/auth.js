@@ -1,4 +1,4 @@
-import jwtDecode from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { onLoginSuccess } from "../context/useAuthStore";

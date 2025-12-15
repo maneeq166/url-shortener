@@ -55,56 +55,65 @@ export default function Home() {
   const [links, setLinks] = useState(INITIAL_DATA);
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(createLinkSchema)
-  })
+
+  const { register, handleSubmit } = useForm({
+    resolver: zodResolver(createLinkSchema),
+  });
 
   // QR Modal
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [activeQrLink, setActiveQrLink] = useState(null);
 
   const handleShorten = async (values) => {
-    e.preventDefault();
-
     setLoading(true);
 
     const res = await createLink(values);
 
-    if (!res.success) return;
     setLoading(false);
-  }
-};
 
-const copyToClipboard = (text, id) => {
-  navigator.clipboard.writeText(text);
-  setCopiedId(id);
-  setTimeout(() => setCopiedId(null), 2000);
-};
+    if (!res || !res.success) return;
 
-const handleDelete = (id) => {
-  setLinks(links.filter((link) => link.id !== id));
-};
+    const { created, qrCode } = res.data;
 
-const openQrModal = (link) => {
-  setActiveQrLink(link);
-  setQrModalOpen(true);
-};
+    const newLink = {
+      id: created._id,
+      original: created.fullUrl,
+      short: `${window.location.origin}/${created.slug}`,
+      custom: created.userSlug || "-",
+      views: created.clicks,
+      date: "Just now",
+      qrCode,
+    };
 
-const downloadQrCode = async (url) => {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  const downloadUrl = URL.createObjectURL(blob);
+    setLinks((prev) => [newLink, ...prev]);
+  };
 
-  const a = document.createElement("a");
-  a.href = downloadUrl;
-  a.download = "qrcode.png";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-};
+  const copyToClipboard = (text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
-return (
-  <div className=" bg-black-950 text-gray-100 pb-24">
+  const handleDelete = (id) => {
+    setLinks((prev) => prev.filter((link) => link.id !== id));
+  };
+
+  const openQrModal = (link) => {
+    setActiveQrLink(link);
+    setQrModalOpen(true);
+  };
+
+  const downloadQrCode = (base64) => {
+    const a = document.createElement("a");
+    a.href = base64;
+    a.download = "qrcode.png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
+
+  return (<div className=" bg-black-950 text-gray-100 pb-24">
 
     {/* Background blur lights */}
     <div className="fixed inset-0 z-0 pointer-events-none">
@@ -137,7 +146,7 @@ return (
       </div>
 
       {/* URL Shortener Form */}
-      <form className="relative group mt-12">
+      <div className="relative group mt-12">
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition"></div>
 
         <div className="relative p-8 rounded-2xl bg-gray-900/70 border border-gray-800 backdrop-blur-xl shadow-xl">
@@ -151,6 +160,7 @@ return (
                   <LinkIcon className="absolute left-4 top-3.5 text-gray-500" size={18} />
                   <input
                     type="url"
+                    required
                     {...register("fullUrl")}
                     placeholder="https://example.com/very-long-url..."
                     className="w-full pl-12 pr-4 py-3 rounded-xl bg-black-900 text-gray-100 border border-gray-700 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500 outline-none"
@@ -190,7 +200,7 @@ return (
             </button>
           </form>
         </div>
-      </form>
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-16">
@@ -288,47 +298,261 @@ return (
     {qrModalOpen && activeQrLink && (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/60"
           onClick={() => setQrModalOpen(false)}
         />
-
-        <div className="relative bg-black-900 p-6 rounded-2xl border border-white/10 max-w-sm w-full shadow-xl">
-
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-white text-lg font-bold">QR Code</h3>
-            <button onClick={() => setQrModalOpen(false)} className="text-gray-400 hover:text-white">
-              <X size={22} />
+        <div className="relative bg-black-900 p-6 rounded-2xl">
+          <div className="flex justify-between mb-4">
+            <h3 className="font-bold">QR Code</h3>
+            <button onClick={() => setQrModalOpen(false)}>
+              <X size={20} />
             </button>
           </div>
-
-          <div className="bg-white p-6 rounded-xl mx-auto w-fit mb-4">
-            <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${activeQrLink.short}`}
-              alt="QR Code"
-              className="rounded"
-            />
+          <div className="bg-white p-4 rounded-xl mb-4">
+            <img src={activeQrLink.qrCode} alt="QR" />
           </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() =>
-                downloadQrCode(
-                  `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${activeQrLink.short}`
-                )
-              }
-              className="py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center gap-2"
-            >
-              <Download size={18} /> Download
-            </button>
-
-            <button className="py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center gap-2">
-              <Share2 size={18} /> Share
-            </button>
-          </div>
+          <button
+            onClick={() => downloadQrCode(activeQrLink.qrCode)}
+            className="w-full bg-blue-600 py-2 rounded-xl"
+          >
+            Download
+          </button>
         </div>
       </div>
     )}
 
-  </div>
-);
+  </div>);
+
+
 }
+
+
+// import { useState } from "react";
+// import {
+//   Copy,
+//   QrCode,
+//   Link as LinkIcon,
+//   BarChart3,
+//   Trash2,
+//   Check,
+//   Zap,
+//   X,
+//   Download,
+//   Share2,
+//   TrendingUp,
+//   Globe,
+// } from "lucide-react";
+// import { useForm } from "react-hook-form";
+// import { zodResolver } from "@hookform/resolvers/zod";
+// import { createLinkSchema } from "../validation/linkSchema";
+// import { createLink } from "../api/link";
+
+// // Temporary data — replace with API later
+// const INITIAL_DATA = [
+//   {
+//     id: 1,
+//     original: "https://dribbble.com/shots/popular",
+//     short: "shrt.lnk/design-daily",
+//     custom: "design-daily",
+//     views: 1240,
+//     date: "2 mins ago",
+//     qrCode: null,
+//   },
+//   {
+//     id: 2,
+//     original: "https://github.com/facebook/react/issues",
+//     short: "shrt.lnk/react-fix",
+//     custom: "react-fix",
+//     views: 856,
+//     date: "1 hour ago",
+//     qrCode: null,
+//   },
+// ];
+
+// export default function Home() {
+//   const [links, setLinks] = useState(INITIAL_DATA);
+//   const [loading, setLoading] = useState(false);
+//   const [copiedId, setCopiedId] = useState(null);
+
+//   const { register, handleSubmit } = useForm({
+//     resolver: zodResolver(createLinkSchema),
+//   });
+
+//   // QR Modal
+//   const [qrModalOpen, setQrModalOpen] = useState(false);
+//   const [activeQrLink, setActiveQrLink] = useState(null);
+
+//   const handleShorten = async (values) => {
+//     setLoading(true);
+
+//     const res = await createLink(values);
+
+//     setLoading(false);
+
+//     if (!res || !res.success) return;
+
+//     const { created, qrCode } = res.data;
+
+//     const newLink = {
+//       id: created._id,
+//       original: created.fullUrl,
+//       short: `${window.location.origin}/${created.slug}`,
+//       custom: created.userSlug || "-",
+//       views: created.clicks,
+//       date: "Just now",
+//       qrCode,
+//     };
+
+//     setLinks((prev) => [newLink, ...prev]);
+//   };
+
+//   const copyToClipboard = (text, id) => {
+//     navigator.clipboard.writeText(text);
+//     setCopiedId(id);
+//     setTimeout(() => setCopiedId(null), 2000);
+//   };
+
+//   const handleDelete = (id) => {
+//     setLinks((prev) => prev.filter((link) => link.id !== id));
+//   };
+
+//   const openQrModal = (link) => {
+//     setActiveQrLink(link);
+//     setQrModalOpen(true);
+//   };
+
+//   const downloadQrCode = (base64) => {
+//     const a = document.createElement("a");
+//     a.href = base64;
+//     a.download = "qrcode.png";
+//     document.body.appendChild(a);
+//     a.click();
+//     a.remove();
+//   };
+
+//   return (
+//     <div className="bg-black-950 text-gray-100 pb-24">
+//       <div className="fixed inset-0 z-0 pointer-events-none">
+//         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 rounded-full blur-[120px] animate-pulse" />
+//         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-900/20 rounded-full blur-[120px] animate-pulse delay-500" />
+//       </div>
+
+//       <main className="relative z-10 max-w-6xl mx-auto pt-40 px-6">
+//         {/* Hero */}
+//         <div className="text-center">
+//           <h1 className="text-5xl font-bold mb-4">
+//             Shorten Your URL{" "}
+//             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
+//               Expand Your Reach
+//             </span>
+//           </h1>
+//           <p className="text-gray-400 max-w-2xl mx-auto">
+//             Create powerful short links with analytics, QR codes, and custom slugs.
+//           </p>
+//         </div>
+
+//         {/* Form */}
+//         <div className="relative group mt-12">
+//           <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl blur opacity-20" />
+//           <div className="relative p-8 rounded-2xl bg-gray-900/70 border border-gray-800 backdrop-blur-xl shadow-xl">
+//             <form onSubmit={handleSubmit(handleShorten)} className="flex flex-col gap-4">
+//               <div className="flex flex-col md:flex-row gap-4">
+//                 <div className="flex-grow">
+//                   <label className="text-xs mb-1 block text-gray-400">
+//                     Destination URL
+//                   </label>
+//                   <div className="relative">
+//                     <LinkIcon className="absolute left-4 top-3.5 text-gray-500" size={18} />
+//                     <input
+//                       type="url"
+//                       {...register("fullUrl")}
+//                       className="w-full pl-12 pr-4 py-3 rounded-xl bg-black-900 border border-gray-700"
+//                     />
+//                   </div>
+//                 </div>
+
+//                 <div className="md:w-1/3">
+//                   <label className="text-xs mb-1 block text-gray-400">
+//                     Custom Slug (Optional)
+//                   </label>
+//                   <input
+//                     type="text"
+//                     {...register("userSlug")}
+//                     className="w-full px-4 py-3 rounded-xl bg-black-900 border border-gray-700"
+//                   />
+//                 </div>
+//               </div>
+
+//               <button
+//                 disabled={loading}
+//                 className="w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold"
+//               >
+//                 {loading ? "Shortening..." : "Shorten Now"}
+//               </button>
+//             </form>
+//           </div>
+//         </div>
+
+//         {/* Links */}
+//         <div className="mt-16 space-y-3">
+//           {links.map((link) => (
+//             <div
+//               key={link.id}
+//               className="bg-black-900/40 border border-white/5 p-5 rounded-2xl"
+//             >
+//               <div className="flex justify-between items-center">
+//                 <div>
+//                   <p className="font-bold">{link.short}</p>
+//                   <p className="text-sm text-gray-500 truncate">
+//                     {link.original}
+//                   </p>
+//                 </div>
+
+//                 <div className="flex gap-2">
+//                   <button
+//                     onClick={() => copyToClipboard(link.short, link.id)}
+//                   >
+//                     {copiedId === link.id ? <Check size={18} /> : <Copy size={18} />}
+//                   </button>
+//                   <button onClick={() => openQrModal(link)}>
+//                     <QrCode size={18} />
+//                   </button>
+//                   <button onClick={() => handleDelete(link.id)}>
+//                     <Trash2 size={18} />
+//                   </button>
+//                 </div>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </main>
+
+//       {/* QR Modal */}
+//       {qrModalOpen && activeQrLink && (
+//         <div className="fixed inset-0 z-50 flex items-center justify-center">
+//           <div
+//             className="absolute inset-0 bg-black/60"
+//             onClick={() => setQrModalOpen(false)}
+//           />
+//           <div className="relative bg-black-900 p-6 rounded-2xl">
+//             <div className="flex justify-between mb-4">
+//               <h3 className="font-bold">QR Code</h3>
+//               <button onClick={() => setQrModalOpen(false)}>
+//                 <X size={20} />
+//               </button>
+//             </div>
+//             <div className="bg-white p-4 rounded-xl mb-4">
+//               <img src={activeQrLink.qrCode} alt="QR" />
+//             </div>
+//             <button
+//               onClick={() => downloadQrCode(activeQrLink.qrCode)}
+//               className="w-full bg-blue-600 py-2 rounded-xl"
+//             >
+//               Download
+//             </button>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
