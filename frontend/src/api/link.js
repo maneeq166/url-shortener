@@ -44,30 +44,25 @@ export const getLinks = async () => {
   }
 };
 
-export const deleteLinks = async ({id,fullUrl})=>{
+export const deleteLinks = async ({ id, fullUrl }) => {
   try {
-    if(id){
-      const res = axios.delete(`${API_URL}/link`,{
-        search:{
-          id:id
-        }
-      },{
-        headers:`Bearer ${localStorage.getItem("token")}`
-      })
-      return res.data 
-    }else if(fullUrl){
-      const res = axios.delete(`${API_URL}/link`,{
-        search:{
-          fullUrl:fullUrl
-        }
-      },{
-        headers:`Bearer ${localStorage.getItem("token")}`
-      })
-      return res.data 
-    }
+    const res = await axios.delete(
+      `${API_URL}/link`,
+      {
+        data: {
+          search: id ? { id } : { fullUrl },
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    toast.success(res.data.message);
+    return res.data;
   } catch (error) {
     const msg = error.response?.data?.message || error.message;
     toast.error(msg);
     return { success: false, message: msg };
   }
-}
+};
