@@ -83,6 +83,11 @@ exports.getOneUrl = async (userId, linkId) => {
     };
   }
 
+  if (url.isExpired || url.expiredDate < new Date()) {
+    url.isExpired = true;
+    url.save();
+  }
+
   // 2. Generate QR code for the short URL (RECOMMENDED)
   //    Use slug-based redirect, not full original URL
   const shortLinkForQR = `${process.env.BASE_URL}/${url.slug}`;
@@ -159,6 +164,8 @@ exports.getSlugRandom = async (slug, userAgent, ip, referer) => {
   }
 
   if (url.isExpired || url.expiredDate < new Date()) {
+    url.isExpired = true;
+    url.save();
     return { statusCode: 400, data: null, message: "URL expired" };
   }
 
@@ -205,6 +212,8 @@ exports.getUserSlug = async (userSlug, userAgent, ip, referer) => {
   }
 
   if (url.isExpired || url.expiredDate < new Date()) {
+    url.isExpired = true;
+    url.save();
     return { statusCode: 400, data: null, message: "URL expired" };
   }
 

@@ -66,3 +66,17 @@ export const deleteLinks = async ({ id, fullUrl }) => {
     return { success: false, message: msg };
   }
 };
+
+export const fetchLinkAnalytics = async (id) => {
+  const res = await axios.get(
+    `${API_URL}/analytics?linkId=${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
