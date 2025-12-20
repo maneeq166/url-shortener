@@ -5,7 +5,7 @@ import ExpiredBanner from "../components/link-details/ExpiredBanner";
 import LinkHeader from "../components/link-details/LinkStats";
 import LinkStats from "../components/link-details/LinkStats";
 import { useLinkAnalytics } from "../hooks/useLinkAnalytics";
-import BreakdownCard from "../components/link-details/BreakDownCard";
+import BreakdownCard from "../components/link-details/BreakdownCard";
 import ClicksChart from "../components/link-details/ClickCharts";
 
 export default function LinkDetails() {
