@@ -51,6 +51,7 @@ import { toast } from "react-toastify";
 // ];
 
 export default function Home() {
+  const API_URL = import.meta.env.VITE_BASE_URL
   const [links, setLinks] = useState([]);
   const [homeLoad, setHomeLoading] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -113,7 +114,7 @@ export default function Home() {
     const newLink = {
       id: created._id,
       original: created.fullUrl,
-      short: `${window.location.origin}/${created.slug}`,
+      short: `${API_URL}/${created.slug}`,
       custom: created.userSlug || "-",
       views: created.clicks,
       date: "Just now",
