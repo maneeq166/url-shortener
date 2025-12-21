@@ -14,6 +14,7 @@ import {
   Globe,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
+const API_URL = import.meta.env.VITE_BASE_URL
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createLinkSchema } from "../validation/linkSchema";
 import { createLink, deleteLinks, getLinks as fetchLinks } from "../api/link";
@@ -51,7 +52,6 @@ import { toast } from "react-toastify";
 // ];
 
 export default function Home() {
-  const API_URL = import.meta.env.VITE_BASE_URL
   const [links, setLinks] = useState([]);
   const [homeLoad, setHomeLoading] = useState(true);
   const [loading, setLoading] = useState(false);
