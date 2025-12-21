@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router";
 import { Smartphone, Globe } from "lucide-react";
 import BackButton from "../components/link-details/BackButton";
 import ExpiredBanner from "../components/link-details/ExpiredBanner";
-import LinkHeader from "../components/link-details/LinkStats";
+import LinkHeader from "../components/link-details/LinkHeader";
 import LinkStats from "../components/link-details/LinkStats";
 import { useLinkAnalytics } from "../hooks/useLinkAnalytics";
 import BreakdownCard from "../components/link-details/BreakdownCard";

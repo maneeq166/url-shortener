@@ -160,10 +160,10 @@ export default function Dashboard() {
           <div className="space-y-3">
             {filteredLinks.map((link) => (
               <div
-  key={link.id}
-  className="bg-black-900/40 border border-white/5 hover:border-blue-600/30 hover:bg-black-800/40 p-5 rounded-2xl transition cursor-pointer"
-  onClick={() => nav(`/links/${link.id}`)}
->
+                key={link.id}
+                className="bg-black-900/40 border border-white/5 hover:border-blue-600/30 hover:bg-black-800/40 p-5 rounded-2xl transition cursor-pointer"
+                onClick={() => nav(`/links/${link.id}`)}
+              >
 
                 <div className="flex flex-col md:flex-row justify-between gap-4">
                   <div className="flex-1">
