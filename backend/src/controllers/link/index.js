@@ -1,4 +1,4 @@
-const { createShortLink, getShortLink, getSlugRandom, getUserSlug, updateUrl, deleteUrl, getOneUrl } = require("../../services/link");
+const { createShortLink, getShortLink, getSlugRandom, getUserSlug, updateUrl, deleteUrl, getOneUrl, getOneQrCode } = require("../../services/link");
 const { asyncHandler } = require("../../utils/asyncHandler");
 const ApiResponse = require("../../utils/apiResponse/index");
 
@@ -99,3 +99,11 @@ exports.handleUrlDeletion = asyncHandler(async (req, res) => {
   const { message, data, statusCode } = result;
   return res.status(statusCode).json(new ApiResponse(statusCode, data, message));
 });
+
+
+exports.handleQrCreation = asyncHandler(async(req,res)=>{
+  const {linkId} = req.query;
+  const result = await getOneQrCode(linkId);
+  const { message, data, statusCode } = result;
+  return res.status(statusCode).json(new ApiResponse(statusCode, data, message));
+})

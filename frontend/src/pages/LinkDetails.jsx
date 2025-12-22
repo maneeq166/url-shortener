@@ -36,7 +36,7 @@ export default function LinkDetails() {
       <div className="max-w-5xl mx-auto">
         <BackButton onClick={() => nav(-1)} />
         {url.isExpired && <ExpiredBanner />}
-        <LinkHeader slug={url.slug} fullUrl={url.fullUrl} />
+        <LinkHeader slug={url.slug} userSlug={url.userSlug} fullUrl={url.fullUrl} />
         <LinkStats
           totalClicks={totalClicks}
           expired={url.isExpired}

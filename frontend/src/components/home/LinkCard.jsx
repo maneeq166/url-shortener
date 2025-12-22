@@ -1,5 +1,5 @@
 import { Copy, Trash2, BarChart3, Check, QrCode } from "lucide-react";
-import { useNavigate } from "react-router";
+import { redirect, useNavigate } from "react-router";
 
 export default function LinkCard({
   link,
@@ -12,6 +12,11 @@ export default function LinkCard({
 
   const goToDetails = () => {
     navigate(`/links/${link.id}`);
+  };
+
+  const goToShortLink = (e) => {
+    e.stopPropagation(); 
+    window.open(link.short, "_blank"); 
   };
 
   return (
@@ -39,6 +44,7 @@ export default function LinkCard({
               transition-colors
             "
             title={link.short}
+            onClick={goToShortLink}
           >
             {link.short}
           </p>
@@ -64,7 +70,7 @@ export default function LinkCard({
           {/* Actions */}
           <div
             className="flex gap-2 border-l border-white/5 pl-4"
-            onClick={(e) => e.stopPropagation()} // ⛔ prevent navigation
+            onClick={(e) => e.stopPropagation()} 
           >
             {/* Copy */}
             <button

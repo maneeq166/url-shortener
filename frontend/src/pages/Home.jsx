@@ -9,7 +9,8 @@ import QrModal from "../components/home/QrModal";
 import { useState } from "react";
 
 export default function Home() {
-  const { links, loading, creating, create, remove } = useLinks();
+  const { links, creating, create, remove } = useLinks();
+
   const { register, handleSubmit, reset } = useForm({
     resolver: zodResolver(createLinkSchema),
   });
@@ -28,24 +29,19 @@ export default function Home() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black-950">
-        <div className="w-10 h-10 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-black-950 text-gray-100 pb-24">
       <main className="max-w-6xl mx-auto pt-20 px-6">
         <HeroSection />
+
         <CreateLinkForm
           register={register}
           handleSubmit={handleSubmit}
           onSubmit={onSubmit}
           loading={creating}
         />
+
+
         <LinksList
           links={links}
           copiedId={copiedId}

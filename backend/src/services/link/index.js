@@ -334,3 +334,34 @@ exports.deleteUrl = async (search, userId) => {
     message: "URL deleted successfully",
   };
 };
+
+
+exports.getOneQrCode = async (linkId) =>{
+  if(!linkId){
+    return {
+      data:null,
+      statusCode:400,
+      message:"Required fields are missing"
+    }
+  }
+  
+  const link = await Link.findById(linkId);
+  
+  if(!link){
+    return {
+      data:null,
+      message:"Not found",
+      statusCode:404
+    }
+  }
+
+  const qrCodeLink = `${process.env.BASE_URL}/${link.slug}`
+  
+  const qrCode = await qrcode.toDataURL(qrCodeLink)
+
+  return {
+    data:qrCode,
+    message:"Qrcode Created",
+    statusCode:201
+  }
+}
