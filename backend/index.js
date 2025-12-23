@@ -32,7 +32,7 @@ if (!MONGODB_URI || !NODE_ENV || !PORT) {
 const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://url-shortener-roan-one.vercel.app"
+  "https://url-shortener-aneeq.vercel.app/"
 ];
 
 app.use(
