@@ -7,10 +7,13 @@ import CreateLinkForm from "../components/home/CreateLinkForm";
 import LinksList from "../components/home/LinksList";
 import QrModal from "../components/home/QrModal";
 import { useState } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
+
 
 export default function Home() {
   const { links, creating, create, remove } = useLinks();
-
+  const nav = useNavigate();
   const { register, handleSubmit, reset } = useForm({
     resolver: zodResolver(createLinkSchema),
   });
@@ -22,6 +25,11 @@ export default function Home() {
     await create(values);
     reset();
   };
+
+  if(!localStorage.getItem("token")){
+      toast.info("Please Login First")
+      nav("/register");
+  }
 
   const copy = (text, id) => {
     navigator.clipboard.writeText(text);

@@ -15,7 +15,7 @@ export default function Navbar() {
       "
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
+        
         {/* Brand */}
         <h1
           className="text-xl font-semibold text-gray-100 tracking-tight cursor-pointer"

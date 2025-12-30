@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import LinkDetails from "./pages/LinkDetails"
+import Notfound from "./pages/Notfound";
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
       <Route path="/login" element={<Login/>}></Route>
       <Route path="/dashboard" element={<Dashboard/>}></Route>
       <Route path="/links/:id" element={<LinkDetails />} />
-
+      <Route path="*" element={<Notfound/>} ></Route>
     </Routes>
     <ToastContainer position="bottom-right" theme="dark" />
     </div>

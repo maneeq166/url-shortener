@@ -23,7 +23,7 @@ export const createLink = async ({ fullUrl, userSlug }) => {
     return res.data;
   } catch (error) {
     const msg = error.response?.data?.message || error.message;
-    toast.error(msg);
+    // toast.error(msg);
     return { success: false, message: msg };
   }
 };
@@ -39,7 +39,7 @@ export const getLinks = async () => {
     return res.data;
   } catch (error) {
     const msg = error.response?.data?.message || error.message;
-    toast.error(msg);
+    // toast.error(msg);
     return { success: false, message: msg };
   }
 };
@@ -62,7 +62,7 @@ export const deleteLinks = async ({ id, fullUrl }) => {
     return res.data;
   } catch (error) {
     const msg = error.response?.data?.message || error.message;
-    toast.error(msg);
+    // toast.error(msg);
     return { success: false, message: msg };
   }
 };

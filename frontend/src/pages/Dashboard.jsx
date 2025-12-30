@@ -145,8 +145,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-600/10 p-6 rounded-2xl text-center">
-            <div className="text-blue-300 font-semibold">Dashboard</div>
+          <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-600/10 p-6  rounded-2xl text-center">
+            <div className="text-blue-300 pt-4 font-semibold">Dashboard</div>
             <div className="text-blue-400/70 text-xs">
               Manage all your links
             </div>

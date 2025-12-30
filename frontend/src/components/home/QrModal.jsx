@@ -33,6 +33,7 @@ export default function QrModal({ link, onClose }) {
         }
 
         setQr(res.data.data);
+      // eslint-disable-next-line no-unused-vars
       } catch (err) {
         toast.error("Failed to load QR code");
       } finally {

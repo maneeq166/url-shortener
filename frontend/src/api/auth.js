@@ -19,7 +19,7 @@ export const register = async ({ username, email, password }) => {
     return res.data;
   } catch (error) {
     const msg = error.response?.data?.message || error.message;
-    toast.error(msg);
+    // toast.error(msg);
     
     return { success: false, message: msg };
   }
@@ -44,7 +44,7 @@ export const login = async ({ email, password }) => {
     return res.data;
   } catch (error) {
     const msg = error.response?.data?.message || error.message;
-    toast.error(msg);
+    // toast.error(msg);
     return { success: false, message: msg };
   }
 };
